@@ -32,9 +32,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 mail = Mail(app)
 db = SQLAlchemy(app)
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
-
-with open(os.path.join(base_dir, 'filter/phone.txt'), "r") as f:
+"""with open('filter/phone.txt', "r") as f:
     country_list = []
     numbers_list = []
     for line in f:
@@ -42,9 +40,9 @@ with open(os.path.join(base_dir, 'filter/phone.txt'), "r") as f:
         country_list.append(country.strip())
         numbers_list.append(number)
 
-with open(os.path.join(base_dir, 'filter/categories.txt'), "r") as f:
+with open('filter/category.txt', "r") as f:
     category_list = f.readlines()
-    category_list = [category.strip().lower() for category in category_list]
+    category_list = [category.strip().lower() for category in category_list]"""
 
 class ClientsInfo(db.Model):
     username = db.Column(db.String(225), nullable=False, primary_key=True)
