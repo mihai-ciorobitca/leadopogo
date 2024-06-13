@@ -846,6 +846,3 @@ def task_table():
     if int(task["scraped_emails"]) > 0:
         task["status"] = "Complete"
     return render_template('task.html', task=task, username=username, check=False)
-
-if __name__ == '__main__':
-    app.run(debug=False)
