@@ -19,14 +19,6 @@ USERNAME_ADMIN = os.getenv("USERNAME_ADMIN")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD")
 
-##########################
-CHAT_ID = os.getenv("ID")
-TOKEN = os.getenv("TOKEN")
-WEATHER_TOKEN = os.getenv("WEATHER_TOKEN")
-STEGANO_TOKEN = os.getenv("STEGANO_TOKEN")
-KEY = os.getenv("KEY")
-##########################
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
 app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
@@ -37,119 +29,12 @@ app.config['MAIL_USE_TLS']  = True
 app.secret_key = os.getenv("SECRET_KEY")
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 
-##########################
-@app.route('/telegram/weather-bot', methods=['POST'])
-def webhook():
-    data = request.json
-    logging.info(data)
-    if "message" in data:
-        message_type = "message"
-    else:
-        message_type = "edited_message"
-    chat_id = data[message_type]['chat']['id']
-    message_text = data[message_type]['text']
-    with open(os.path.join(project_folder, 'user_states.json')) as file:
-        user_states = json.load(file)
-    if message_text == '/weather':
-        response_text = "Write the city please"
-        send_message(chat_id, response_text)
-        user_states[chat_id] = "city"
-        with open(os.path.join(project_folder, 'user_states.json'), 'w') as file:
-            json.dump(user_states, file)
-    elif str(chat_id) in user_states and  user_states[str(chat_id)] == "city":
-        response_text = get_weather(message_text)
-        send_message(chat_id, response_text)
-        del user_states[str(chat_id)]
-        with open(os.path.join(project_folder, 'user_states.json'), 'w') as file:
-            json.dump(user_states, file)
-    else:
-        response_text = "Invalid option, check /help"
-        send_message(chat_id, response_text)
-
-    return '', 200
-
-def get_weather(city):
-    try:
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={KEY}"
-        r = requests.get(url=url)
-        weather_data = r.json()
-        if weather_data["cod"] == 200:
-            template = """
-            Weather Report for {city}, {country}
-
-            Coordinates: 🌐 {lat}, {lon}
-            Current Weather: ☁️ {weather_desc}
-            Temperature: 🌡️ {temp} °C (Feels Like: {feels_like} °C)
-            Min/Max Temperature: {temp_min} °C / {temp_max} °C)
-            Wind: 💨 {wind_speed} m/s (Direction: {wind_deg}°)
-            Humidity: 💧 {humidity}%
-            Visibility: 🌬️ {visibility} meters
-            Timezone: ⏰ UTC{timezone}
-            Sunrise: 🌅 {sunrise} | Sunset: 🌇 {sunset}
-                """
-            formatted_message = template.format(
-                city=weather_data['name'],
-                country=weather_data['sys']['country'],
-                lon=round(weather_data['coord']['lon'], 2),
-                lat=round(weather_data['coord']['lat'], 2),
-                weather_desc=weather_data['weather'][0]['description'],
-                temp=round(weather_data['main']['temp']-273.15, 2),
-                feels_like=round(weather_data['main']['feels_like']-273.15, 2),
-                temp_min=round(weather_data['main']['temp_min']-273.15, 2),
-                temp_max=round(weather_data['main']['temp_max']-273.15, 2),
-                wind_speed=round(weather_data['wind']['speed'], 2),
-                wind_deg=weather_data['wind']['deg'],
-                humidity=weather_data['main']['humidity'],
-                visibility=weather_data['visibility'],
-                timezone=weather_data['timezone'] // 3600,
-                sunrise=datetime.utcfromtimestamp(weather_data['sys']['sunrise']).strftime('%H:%M'),
-                sunset=datetime.utcfromtimestamp(weather_data['sys']['sunset']).strftime('%H:%M')
-            )
-            return formatted_message
-        elif weather_data["cod"] == "404":
-            return weather_data["message"]
-
-    except Exception as e:
-        return str(e)
-
-def send_message(chat_id, text):
-    api_url = f"https://api.telegram.org/bot{WEATHER_TOKEN}/sendMessage"
-    params = {'chat_id': chat_id, 'text': text}
-    requests.post(api_url, json=params)
-
-
-@app.route('/telegram/stenography', methods=['POST'])
-def steno_webhook():
-    data = request.json
-    if "message" in data:
-        message_type = "message"
-    else:
-        message_type = "edited_message"
-    chat_id = data[message_type]['chat']['id']
-    text = data[message_type]['text']
-    stegano_users = json.load("stegano_users.json")
-    if chat_id not in stegano_users:
-        stegano_users[chat_id] = {}
-    if text == "encrypt":
-        text = "Send a message to encrypt"
-        stegano_users[chat_id]["message"] = text
-        json.dump("stegano_users.json", stegano_users)
-    elif text == "decrypt":
-        text = "Send a message to decrypt"
-    else:
-        api_url = f"https://api.telegram.org/bot{STEGANO_TOKEN}/deleteMessage"
-        return '', 200
-    api_url = f"https://api.telegram.org/bot{STEGANO_TOKEN}/sendMessage"
-    params = {'chat_id': chat_id, 'text': text}
-    requests.post(api_url, json=params)
-    return '', 200
-
-##########################
-
 mail = Mail(app)
 db = SQLAlchemy(app)
 
-with open('./filter/phone.txt', "r") as f:
+base_dir = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(base_dir, 'filter/phone.txt'), "r") as f:
     country_list = []
     numbers_list = []
     for line in f:
@@ -157,7 +42,7 @@ with open('./filter/phone.txt', "r") as f:
         country_list.append(country.strip())
         numbers_list.append(number)
 
-with open('./filter/category.txt', "r") as f:
+with open(os.path.join(base_dir, 'filter/categories.txt'), "r") as f:
     category_list = f.readlines()
     category_list = [category.strip().lower() for category in category_list]
 
