@@ -3,3 +3,4 @@ flask_sqlalchemy
 flask_mail
 python-dotenv
 bs4
+requests
