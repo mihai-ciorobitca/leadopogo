@@ -1,0 +1,810 @@
+actor
+acupuncturist
+addiction resources center
+addiction service
+addiction treatment center
+adult entertainment service
+aerospace company
+african restaurant
+agricultural cooperative
+agricultural service
+agriculture
+airline company
+airport
+airport shuttle service
+album
+allergist
+amateur photographer
+amateur sports team
+american restaurant
+amphitheater
+amusement & theme park
+animal shelter
+antique store
+apartment & condo building
+apostolic church
+apparel & clothing
+apparel distributor
+appliance manufacturer
+appliances
+aquarium
+aquatic pet store
+arabian restaurant
+arboretum
+arcade
+architectural designer
+argentinian restaurant
+aromatherapy service
+art
+art museum
+art restoration service
+art school
+artist
+arts & crafts store
+arts & entertainment
+arts & humanities website
+asian fusion restaurant
+asian restaurant
+assemblies of god
+athlete
+atv recreation park
+auction house
+audio visual equipment store
+audiologist
+auditorium
+australian restaurant
+author
+automated teller machine (atm)
+automotive body shop
+automotive customization shop
+automotive dealership
+automotive parts store
+automotive repair shop
+automotive service
+automotive window tinting service
+aviation school
+awning supplier
+baby & children’s clothing store
+baby goods/kids goods
+babysitter
+bags & luggage store
+bags/luggage
+bail bondsmen
+bakery
+band
+bar
+bar & grill
+barbecue restaurant
+barber shop
+beach
+beach resort
+beauty salon
+beauty store
+beauty supplier
+beauty supply store
+bed and breakfast
+beer bar
+beer garden
+belgian restaurant
+bicycle shop
+blinds & curtains store
+blogger
+book
+book series
+bookstore
+borough
+botanical garden
+bowling alley
+brazilian restaurant
+breakfast & brunch restaurant
+brewery
+bridal shop
+bridge
+british restaurant
+brokerage firm
+bubble tea shop
+buffet restaurant
+building material store
+building materials
+burger restaurant
+bus line
+bus tour agency
+butcher shop
+cabin
+cable & satellite company
+cafe
+cafeteria
+camera store
+camera/photo
+campground
+campus building
+canadian restaurant
+candy store
+cantonese restaurant
+car dealership
+car stereo store
+career counselor
+cargo & freight company
+caribbean restaurant
+carnival supply store
+castle
+caterer
+cause
+cave
+cemetery
+champagne bar
+charity organization
+cheese shop
+chemical company
+chicken joint
+child protective service
+chimney sweeper
+chinese restaurant
+chiropractor
+chocolate shop
+choir
+christian church
+church
+church of christ
+church of god
+church of jesus christ of latter-day saints
+cinematographer
+circus
+city
+city infrastructure
+clothing (brand)
+clothing company
+clothing store
+cocktail bar
+coffee shop
+collectibles store
+college & university
+colombian restaurant
+comedian
+comedy club
+comfort food restaurant
+comic bookstore
+community
+community center
+community college
+community museum
+community organization
+community service
+competition
+computer store
+contemporary art museum
+continental restaurant
+convenience store
+convent & monastery
+cosmetics store
+cosmetology school
+costume shop
+cottage
+counselor
+country
+country club / clubhouse
+cricket ground
+cruise line
+cuban restaurant
+cultural gifts store
+cupcake shop
+dairy farm
+damage restoration service
+dance & night club
+dance school
+dance studio
+dancer
+dating service
+day care
+day spa
+deck & patio builder
+defense company
+deli
+design & fashion
+designer
+dessert shop
+dim sum restaurant
+diner
+disc golf course
+discount store
+distillery
+dive bar
+diving spot
+dj
+doctor
+dog day care center
+dog park
+dog walker
+dominican restaurant
+donut shop
+drink
+drive-in movie theater
+driving school
+drug addiction treatment center
+dry cleaner
+educational consultant
+educational research center
+educational supply store
+electrician
+electronics
+electronics store
+elementary school
+elevator service
+episode
+equestrian center
+esports league
+esports team
+ethiopian restaurant
+european restaurant
+evangelical church
+fabric store
+family doctor
+family medicine practice
+family style restaurant
+farm
+farmers market
+fashion designer
+fashion model
+fast food restaurant
+fence & gate contractor
+fertility doctor
+festival
+fictional character
+field of study
+filipino restaurant
+film director
+fireplace store
+fish & chips restaurant
+fish farm
+fish market
+fishing spot
+fishing store
+fitness boot camp
+fitness model
+fitness trainer
+fjord/loch
+flea market
+flight school
+florist
+flyboarding center
+fondue restaurant
+food & beverage
+food & beverage company
+food delivery service
+food stand
+food tour agency
+food truck
+food wholesaler
+foodservice distributor
+footwear store
+forestry & logging
+french restaurant
+frozen yogurt shop
+fruit & vegetable store
+funny instagram categories
+furniture
+furniture store
+gamer
+games/toys
+garden center
+gardener
+gas station
+gastropub
+gay bar
+gelato shop
+general dentist
+german restaurant
+gift shop
+glass & mirror shop
+glass manufacturer
+glass service
+gluten-free restaurant
+go-kart track
+golf cart dealership
+golf course & country club
+government building
+government official
+government organization
+government website
+granite & marble supplier
+graphic designer
+greek restaurant
+grocery store
+gun store
+gym/physical fitness center
+hair salon
+halal restaurant
+hat store
+haunted house
+hawaiian restaurant
+health & wellness website
+health food restaurant
+health food store
+health spa
+health/beauty
+high school
+hiking trail
+hindu temple
+history museum
+home
+home & garden store
+home & garden website
+home decor
+home goods store
+home improvement
+home inspector
+home mover
+home staging service
+home theater store
+homebrew supply store
+hong kong restaurant
+hookah lounge
+horse trainer
+horseback riding center
+hospital
+hostel
+hot air balloon tour agency
+hot dog joint
+hotel
+hotel & lodging
+hotel bar
+hotel resort
+house painting
+house sitter
+household supplies
+hungarian restaurant
+ice cream shop
+ice skating rink
+immigration lawyer
+independent bookstore
+indian chinese restaurant
+indian restaurant
+indo chinese restaurant
+indonesian restaurant
+interest
+interior design studio
+internet cafe
+internet company
+internet marketing service
+internet service provider
+investing service
+investment bank
+investment management company
+irish restaurant
+island
+italian restaurant
+janitorial service
+japanese restaurant
+journalist
+just for fun
+karaoke
+kennel
+kids entertainment service
+kitchen & bath contractor
+kitchen/cooking
+korean restaurant
+kosher restaurant
+labor union
+landmark & historical place
+language school
+lasik/laser eye surgeon
+latin american restaurant
+laundromat
+lawyer
+lawyer & law firm
+lebanese restaurant
+legal
+library
+lighthouse
+lighting store
+ligurian restaurant
+lingerie & underwear store
+literary arts
+live music venue
+livery stable
+loan service
+lobbyist
+local business
+local service
+locality
+locksmith
+lodge
+lottery retailer
+lounge
+magician
+makeup artist
+malaysian restaurant
+marina
+marine
+marine supply store
+market
+martial arts school
+masonry contractor
+maternity & nursing clothing store
+mattress manufacturer
+mattress store
+mattress wholesaler
+meat wholesaler
+media
+media agency
+media/news company
+medical center
+medical lab
+medical procedure
+medical school
+medical service
+medical spa
+medical supply store
+meditation center
+mediterranean restaurant
+meeting room
+men’s clothing store
+metal fabricator
+metal supplier
+methodist church
+mexican restaurant
+middle eastern restaurant
+middle school
+military base
+miniature golf course
+mining company
+mission
+mobile home park
+mobile phone shop
+modern art museum
+modern european restaurant
+monarch
+monument
+moroccan restaurant
+mosque
+motel
+motivational speaker
+motor vehicle company
+motorcycle dealership
+motorcycle manufacturer
+motorcycle repair shop
+motorsports store
+mountain
+mountain biking shop
+movie
+movie & music store
+movie character
+movie theater
+moving & storage service
+museum
+music
+music award
+music chart
+music lessons & instruction school
+music producer
+music production studio
+musical genre
+musical instrument
+musical instrument store
+musician
+musician/band
+nail salon
+nanny
+national forest
+national park
+nature preserve
+naturopath
+neapolitan restaurant
+neighborhood
+new american restaurant
+newspaper
+newsstand
+night market
+non-governmental organization (ngo)
+nondenominational church
+nonprofit organization
+nurseries & gardening store
+nursing school
+observatory
+obstetrician-gynecologist (obgyn)
+occupational therapist
+ocean
+opera house
+ophthalmologist
+optometrist
+oral surgeon
+orchestra
+other
+pakistani restaurant
+palace
+park
+party entertainment service
+patio/garden
+pawn shop
+pediatrician
+pentecostal church
+performance & event venue
+performance art
+performance art theatre
+performing arts
+performing arts school
+periodontist
+personal blog
+peruvian restaurant
+pet
+pet breeder
+pet groomer
+pet sitter
+pet store
+pet supplies
+petting zoo
+pho restaurant
+photographer
+photography museum
+photography videography
+pilates studio
+pizza place
+plastic manufacturer
+playground
+podiatrist
+police station
+polish restaurant
+political candidate
+political organization
+pop-up shop
+portuguese restaurant
+post office
+pregnancy care center
+preschool
+printing service
+private investigator
+private members club
+private school
+professional sports team
+promenade
+prosthodontist
+psychologist
+pub
+public & government service
+public school
+public swimming pool
+race track
+radio station
+ramen restaurant
+record label
+recreation & sports website
+recreation center
+recreation spot
+reference website
+reflexologist
+refrigeration service
+region
+religious bookstore
+religious center
+religious organization
+restaurant
+restaurant wholesaler
+rock climbing gym
+rodeo
+roller skating rink
+rv park
+sake bar
+sandwich shop
+school
+school sports league
+school sports team
+screen printing & embroidery
+scuba instructor
+sewing & alterations
+shaved ice shop
+shopping mall
+sikh temple
+skate shop
+skateboard park
+ski resort
+smoothie & juice bar
+snorkeling spot
+soba restaurant
+soccer field
+social club
+song
+soul food restaurant
+soup restaurant
+south african restaurant
+southern restaurant
+spanish restaurant
+specialty grocery store
+specialty school
+speech pathologist
+sport
+sporting goods store
+sports
+sports & fitness instruction
+sports & recreation
+sports & recreation venue
+sports event
+sports league
+sports team
+stadium, arena & sports venue
+state
+stately home
+structural engineer
+subway station
+supermarket
+surf shop
+surfing spot
+surveyor
+sushi restaurant
+swimwear store
+symphony
+talent agent
+tanning salon
+taxi service
+taxidermist
+tea room
+theatrical play
+theatrical productions
+theme restaurant
+tour guide
+traffic school
+train station
+transit stop
+translator
+transportation service
+travel & transportation
+travel agency
+travel company
+tuscan restaurant
+tutor/teacher
+tv season
+tv show
+tv/movie award
+uniform supplier
+urban farm
+urologist
+vacation home rental
+video creator
+video game store
+vietnamese restaurant
+vintage store
+visual arts
+web designer
+weight loss center
+whisky bar
+wholesale bakery
+wholesale grocer
+wig store
+wildlife sanctuary
+window installation service
+wine bar
+wine, beer & spirits store
+wine/spirits
+writer
+yoga studio
+youth organization
+zoo
+alternative & holistic health service
+animals & pets
+art gallery
+astrologist & psychic
+auto detailing service
+automotive consultant
+automotive manufacturer
+automotive, aircraft & boat
+baby & children's clothing store
+bank
+barber
+boat rental
+boutique store
+broadcasting & media production company
+carpenter
+carpet & flooring store
+child care service
+children & parenting
+cleaning service
+commercial & industrial
+commercial & industrial equipment supplier
+computer training school
+computers & internet website
+copywriting service
+crafts
+creative director
+currency exchange
+digital creator
+disability service
+dog trainer
+eco tour agency
+editor
+education
+education website
+engineering service
+environmental conservation organization
+environmental service
+escape game room
+fan page
+fashion stylist
+fire protection service
+first aid class
+fishing charter
+food & drink
+furniture repair & upholstery service
+hair extensions service
+hair stylist
+hardware store
+healthcare administrator
+heating, ventilating & air conditioning service
+home health care service
+housing assistance service
+illustrator
+in-home service
+insurance agent
+insurance broker
+jewelry & watches store
+laser hair removal service
+legal service
+magazine
+management service
+massage service
+massage therapist
+medical & health
+medical equipment manufacturer
+men's clothing store
+mental health service
+merchandising service
+model
+mortgage brokers
+movie/television studio
+nail artist
+notary public
+nutritionist
+occupational safety and health service
+office supplies
+optician
+orthodontist
+outdoor equipment store
+party supply & rental shop
+pediatric dentist
+personal assistant
+personal injury lawyer
+pest control service
+pet service
+pharmaceutical company
+pharmaceuticals
+pharmacy / drugstore
+physical therapist
+plumbing service
+podcast
+producer
+professional service
+psychotherapist
+publisher
+radiologist
+real estate title & development
+recruiter
+recycling center
+roofing service
+science & tech
+science, technology & engineering
+scientist
+shopping & retail
+signs & banner service
+skin care service
+software
+spa
+sports club
+sunglasses & eyewear store
+swimming instructor
+talent manager
+tattoo & piercing shop
+tax preparation service
+therapist
+toy store
+trailer dealership
+travel service
+tree cutting service
+veterinarian
+video game programmer
+vitamins/supplements
+voice actor
+water treatment service
+wedding planning service
+wedding venue
+wholesale & supply store
+winery/vineyard
+women's clothing store
+writing service

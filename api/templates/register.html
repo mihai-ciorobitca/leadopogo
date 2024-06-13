@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Registration Form
+    </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("form").submit(function(e){
+                e.preventDefault();
+                var data = $(this).serialize();
+                $.post("/register", data, function(result){
+                    if (result.result === "exist-user") {
+                        alert("Username already used");
+                    }
+                    else if(result.result === "exist-email") {
+                        alert("Email already used");
+                    }
+                    else if(result.result === "unconfirmed") {
+                        alert("Registered. Ask admin to activate");
+                    }
+                    else {
+                        alert("Unexpected error");
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <form method="POST" action="{{url_for('register')}}" onsubmit="checkPasswordMatch()">
+        <h1>Registration Form</h1>
+        <input type="text" id="username" name="username" placeholder="Enter your username" pattern="^[a-zA-Z0-9_]{5,20}$"
+        autocomplete="off" maxlength="20" title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores." required><br>
+
+        <div style="position: relative;">
+          <input type="password" id="password" name="password" placeholder="Enter your password"
+        pattern="^.{8,}$" autocomplete="off" maxlength="64"
+        title="Password must contain at least 8 characters" required>
+          <button type="button" class="reveal-password-button password" onclick="togglePasswordVisibility('password')">
+            <i class="fa fa-eye-slash" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div style="position: relative;">
+          <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm your password" autocomplete="off"
+          title="Please confirm your password" maxlength="64" required><br>
+          <button type="button" class="reveal-password-button confirm_password" onclick="togglePasswordVisibility('confirm_password')">
+            <i class="fa fa-eye-slash" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <input type="email" name="email" id="email" placeholder="Email address" autocomplete="on" required><br>
+
+        <input type="submit" value="Register">
+    </form>
+    <script>
+        var password = document.getElementById("password");
+        var confirm_password = document.getElementById("confirm_password");
+        confirm_password.oninput = checkPasswordMatch;
+
+        function togglePasswordVisibility(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const revealPasswordButton = document.querySelector(`.reveal-password-button.${fieldId}`);
+            const currentType = passwordInput.type;
+            if (currentType === 'password') {
+                passwordInput.type = 'text';
+                revealPasswordButton.innerHTML = '<i class="fa fa-eye" aria-hidden="true"></i>';
+            } else {
+                passwordInput.type = 'password';
+                revealPasswordButton.innerHTML = '<i class="fa fa-eye-slash" aria-hidden="true"></i>';
+            }
+        }
+
+        function checkPasswordMatch() {
+            if (password.value != confirm_password.value) {
+                confirm_password.setCustomValidity("Passwords don't match");
+                event.preventDefault();
+            } else {
+                confirm_password.setCustomValidity("");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<html><head>
+    <title>
+        My tasks
+    </title>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tasks.css') }}">
+    </head>
+    <body>
+          <div class="container">
+                <div class="table-div">
+                  <div class="header-div">
+                    <div class="header-cell-1">Name</div>
+                    <div class="header-cell-2">Status</div>
+                  </div>
+                  <div class="content-div">
+                    <div class="table">
+                        {% for task in tasks_all %}
+                        <div class="table-row">
+                            <div class="table-cell-1">
+                                 <label class="label-element">{{ task.taskname }}</label>
+                            </div>
+                            <div class="table-cell-2">
+                                <form action="{{ url_for('task_table') }}" method="POST">
+                                    <input type="hidden" name="task_name" value="{{ task.taskname }}">
+                                    <input type="hidden" name="task_platform" value="other">
+                                    <input type="hidden" name="task_url" value="{{ task.url }}">
+                                    <input type="hidden" name="task_download" value="{{ task.download }}">
+                                    <input type="hidden" name="task_scraped" value="{{ task.scraped_emails }}">
+                                    <input type="hidden" name="task_maximum" value="{{ task.maximum_emails }}">
+                                    <button type="submit">Open Task</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor%}
+                      </div>
+                  </div>
+                </div>
+            <div class="search-div">
+                <div class="search-input-div" style="border-radius: 5px;">
+                  <input class="search-input-down" type="text" placeholder="Search">
+                </div>
+                <label class="search-label">Tasks panel</label>
+            </div>
+          </div>
+    </body>
+    <script>
+      const searchInput = document.querySelector('.search-input-down');
+      const tableRows = document.querySelectorAll('.table-row');
+
+      searchInput.addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+
+        tableRows.forEach(function(row) {
+          const name = row.querySelector('.label-element').innerText.toLowerCase();
+          if (!name.startsWith(searchValue)) {
+            row.style.display = 'none';
+          } else {
+            row.style.display = 'flex';
+          }
+        });
+      });
+    </script>
+</html>

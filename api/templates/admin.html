@@ -1,0 +1,107 @@
+<html>
+    <head>
+        <title>
+            {% if session['is_super'] %}
+                Super admin panel
+            {% else %}
+                Admin panel
+            {% endif %}
+        </title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+        <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    </head>
+    <body>
+  <div class="container">
+    {% if session['is_admin'] %}
+        <div class="table-div">
+          <div class="header-div">
+            <div class="header-cell-1">Name</div>
+            <div class="header-cell-2">Credits</div>
+            <div class="header-cell-3">Buy</div>
+            <div class="header-cell-4">Credits</div>
+            <div class="header-cell-5">Status</div>
+            <div class="header-cell-6">Account</div>
+            <div class="header-cell-7">Tasks</div>
+          </div>
+          <div class="search-div">
+            <input class="search-input-down" type="text" placeholder="Search">
+          </div>
+          <div class="content-div">
+            <div class="table">
+                {% for user in users %}
+                <div class="table-row">
+                    <div class="table-cell-1">
+                         <label class="label-element">{{ user.username }}</label>
+                    </div>
+                    <div class="table-cell-2">
+                         <label class="label-element">{{ user.credits }}</label>
+                    </div>
+                    <div class="table-cell-3">
+                        <form id="buy-credits-form" action="/admin/buy_credits" method="POST">
+                            <input class="search-input" name="credits" placeholder="Nr. credits" min="1" required/>
+                            <input type="hidden" name="username" value="{{ user.username }}"/>
+                            <button type="submit" class="search-button">Buy</button>
+                        </form>
+                    </div>
+                    <div class="table-cell-4">
+                        <form id="clear-credits-form" action="/admin/clear_credits" method="POST">
+                            <input type="hidden" name="username" value="{{ user.username }}"/>
+                            <button type="submit" class="clear-button" style="background-color: orange">Clear</button>
+                        </form>
+                    </div>
+                    <div class="table-cell-5">
+                        <form action="/admin/update_status" method="POST">
+                            <input type="hidden" name="username" value="{{ user.username }}"/>
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="confirmed" {% if user.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="unconfirmed" {% if user.status == 'unconfirmed' %}selected{% endif %}>Unconfirmed</option>
+                                <option value="special" {% if user.status == 'special' and session['is_super'] %}selected{% endif %}
+                                        {% if not session['is_super'] %}disabled{% endif %}>Special</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="table-cell-6">
+                        <form action="/admin/delete_account" onsubmit="return confirmDeleteAccount(event);" method="POST">
+                            <input type="hidden" name="username" value="{{ user.username }}"/>
+                            <button {% if not session['is_super']  %}disabled style="background-color: #cccccc;"{% endif %}
+                            type="submit" class="clear-button" style="background-color: red">Delete</button>
+                        </form>
+                    </div>
+                    <div class="table-cell-7">
+                        <form action="/admin/tasks_manual" method="POST">
+                            <input type="hidden" name="username" value="{{ user.username }}"/>
+                            <button type="submit" class="clear-button" style="background-color: blue">Open</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor%}
+              </div>
+          </div>
+        </div>
+    {% endif %}
+</body>
+    <script>
+        const searchInput = document.querySelector('.search-input-down');
+        const tableRows = document.querySelectorAll('.table-row');
+
+        searchInput.addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+
+        tableRows.forEach(function(row) {
+            const name = row.querySelector('.label-element').innerText.toLowerCase();
+            if (!name.startsWith(searchValue)) {
+                row.style.display = 'none';
+                } else {
+                row.style.display = 'flex';
+                }
+            });
+        });
+
+        function confirmDeleteAccount(event) {
+            if (!confirm('Are you sure you want to delete the account?')) {
+                event.preventDefault();
+            }
+        }
+    </script>
+
+</html>

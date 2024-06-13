@@ -1,0 +1,126 @@
+body {
+    background-image: url(/static/background.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f1f1f1;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    padding: 10px;
+    background: white;
+    width: 70%;
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+label {
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 20px;
+    background-color: #1dc955;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+input, textarea {
+    padding: 10px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+textarea {
+    resize: none;
+}
+
+#localStorageContent {
+    background-color: white;
+    width: 100%;
+    max-height: 50vh;
+    overflow-y: auto;
+    border-radius: 0 0 15px 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+thead {
+    background: linear-gradient(to left, #15D040, #469FBF);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+th {
+    color: white;
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    border-left: none;
+}
+
+
+.copy-button, select {
+    padding: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.copy-button, button {
+    background-color: #1dc955;
+    color: white;
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+.copy-button:hover {
+    background-color: #15D040;
+}
+
+#downloadButton, #uploadButton,
+#addButton, #removeButton {
+    padding: 10px 20px;
+    background-color: #469FBF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+#downloadButton {
+    margin-left: auto;
+}
+
+ .buttonsContainer {
+    display: inline;
+}

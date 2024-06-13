@@ -1,0 +1,40 @@
+Email Opened:
+Timestamp: 2023-12-01 11:52:39
+User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 CCleaner/119.0.0.0
+IP Address: 46.97.169.180
+Email Opened:
+Timestamp: 2023-12-01 11:55:27
+User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 CCleaner/119.0.0.0
+IP Address: 46.97.169.180
+Email Opened:
+Timestamp: 2023-12-05 15:08:59
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.133
+Email Opened:
+Timestamp: 2023-12-05 15:19:10
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.134
+Email Opened:
+Timestamp: 2023-12-05 15:48:53
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.134
+Email Opened:
+Timestamp: 2023-12-05 18:51:36
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.133
+Email Opened:
+Timestamp: 2023-12-05 18:52:47
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.133
+Email Opened:
+Timestamp: 2023-12-05 18:52:54
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.134
+Email Opened:
+Timestamp: 2023-12-05 19:10:57
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.133
+Email Opened:
+Timestamp: 2023-12-05 19:20:43
+User Agent: Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)
+IP Address: 66.249.81.133

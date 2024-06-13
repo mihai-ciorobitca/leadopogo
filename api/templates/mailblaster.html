@@ -1,0 +1,272 @@
+<!DOCTYPE html
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous">
+        <title>Mailblaster</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/mailblaster.css') }}">
+        <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <script>
+            $(document).ready(function () {
+                $("#home-btn").click(function() {
+                    $(".home").show();
+                    $(".settings").hide();
+                    $(".campaign").hide();
+                    location.reload();
+                });
+
+                $("#settings-btn").click(function() {
+                    $(".home").hide();
+                    $(".settings").show();
+                    $(".campaign").hide();
+                });
+
+                $("#campaign-btn").click(function() {
+                    $(".home").hide();
+                    $(".settings").hide();
+                    $(".campaign").show();
+                });
+
+                $("#load-recipients-btn").click(function () {
+                    $("#recipient-file").click();
+                });
+
+                $("#recipient-file").change(function (event) {
+                    handleFileUpload(event);
+                });
+
+                $("#load-html-btn").click(function () {
+                    $("#fileInput").click();
+                });
+
+                $("#fileInput").change(function (event) {
+                    handleHtmlFileLoad(event);
+                });
+
+                function handleFileUpload(event) {
+                    var fileInput = event.target;
+                    var file = fileInput.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var parsedRecipients = parseCSV(e.target.result);
+                            parsedRecipients = removeDuplicates(parsedRecipients);
+                            $("textarea[name='recipients']").val(parsedRecipients.join('\n'));
+                        };
+                        reader.readAsText(file);
+                    }
+                }
+
+                function handleHtmlFileLoad(event) {
+                    var fileInput = event.target;
+                    var file = fileInput.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $("#htmlContent").val(e.target.result);
+                            alert("HTML template loaded");
+                        };
+                        reader.readAsText(file);
+                    }
+                }
+
+                function parseCSV(csvData) {
+                    return csvData.split('\n').map(function (email) {
+                        return email.trim();
+                    });
+                }
+
+                function removeDuplicates(array) {
+                    return array.filter((value, index, self) => {
+                        return self.indexOf(value) === index;
+                    });
+                }
+
+                $(".campaign-form").submit(function(e){
+                    e.preventDefault();
+                    let recipientsTextarea = $("#recipients");
+                    if (recipientsTextarea.val().trim() === "") {
+                        alert("Recipients cannot be empty");
+                        return;
+                    }
+                    let htmlTextarea = $("#htmlContent");
+                    if (htmlTextarea.val().trim() === "") {
+                        alert("HTML not loaded");
+                        return;
+                    }
+                    let data = $(this).serialize();
+                    $.post("/home/mailblaster/add_campaign", data, function(result){
+                        alert(result.message);
+                    });
+                });
+
+                $(".settings-form").submit(function(e){
+                    e.preventDefault();
+                    let data = $(this).serialize();
+                    $.post("/home/mailblaster/settings", data, function(result){
+                        alert(result.message);
+                        if (result.result === "success") {
+                            location.reload();
+                        }
+                    });
+                });
+
+                $(".toggle-form").submit(function(e){
+                    e.preventDefault();
+                    let data = $(this).serialize();
+                    $.post("/home/mailblaster/toggle_campaign", data, function(result){
+                        if (result.result == "success") {
+                            location.reload();
+                        }
+                        else {
+                            alert(result.message);
+                        }
+                    });
+                });
+
+                $(".delete-form").submit(function(e) {
+                    e.preventDefault();
+                    let answer = confirm("Are you sure you want to delete this campaign?");
+                    if (answer) {
+                        let data = $(this).serialize();
+                        $.post("/home/mailblaster/delete_campaign", data, function(result) {
+                            if (result.result == "success") {
+                                location.reload();
+                            }
+                        });
+                    }
+                });
+
+                function sendCampaign() {
+                    {% for campaign in user_campaigns %}
+                        {% if campaign.campaign_status == "running" %}
+                            var nextSendTime = new Date("{{ campaign.next_send }}");
+                            var currentUtcTime = new Date();
+                            var offsetUtcTime = new Date().getTimezoneOffset();
+                            var currentUtcTimeOffset = new Date(currentUtcTime.getTime() + offsetUtcTime * 60000);
+                            var deltaTime = nextSendTime - currentUtcTimeOffset;
+
+                            if (deltaTime <= 0) {
+                                $.post("/home/mailblaster/send_campaign", {
+                                    campaign_name: "{{ campaign.campaign_name }}"
+                                }, function(result) {
+                                    if (result.result == "success") {
+                                        window.location.reload();
+                                    }
+                                    else {
+                                        alert(result.message);
+                                    }
+                                });
+                            }
+                        {% endif %}
+                    {% endfor %}
+                }
+                setInterval(sendCampaign, 1000);
+                sendCampaign();
+            });
+        </script>
+    </head>
+    <body>
+        <div id="menu">
+            <span class="icon-with-text">
+                <i class="fas fa-home" id="home-btn"></i>
+                Home
+            </span>
+
+            <span class="icon-with-text">
+                <i class="fas fa-paper-plane" id="campaign-btn"></i>
+                Campaign
+            </span>
+
+            <span class="icon-with-text">
+                <i class="fas fa-cog" id="settings-btn"></i>
+                Settings
+            </span>
+        </div>
+        <div class="home">
+            <h1>Welcome, {{ session['username'] }}!</h1>
+            <h2>You have {{credits}} credits left</h2>
+            <table id="campaign-table">
+                <thead>
+                    <tr>
+                        <th>Campaign Name</th>
+                        <th>Stats</th>
+                        <th>Next Send</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   {% for campaign in user_campaigns %}
+                        <tr data-campaign-id="{{ campaign.campaign_name }}">
+                            <td> {{ campaign.campaign_name.split('$')[1] }} </td>
+                            <td>
+                                <form action="{{url_for('stats')}}" method="GET" target="_blank">
+                                    <input type="hidden" name="stats" value="{{campaign.campaign_name}}">
+                                    <button type="submit">Stats</button>
+                                </form>
+                            </td>
+                            <td id="nextSend_{{ campaign.campaign_name }}">
+                                {% if campaign.next_send is not none %}
+                                    {{ campaign.next_send }}UTC
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form class="toggle-form" action="/home/mailblaster/toggle_campaign" method="post">
+                                    <input type="hidden" value="{{ campaign.campaign_name }}" name="campaign_name"/>
+
+                                    {% if campaign.campaign_status == "completed" %}
+                                        <button disabled style="cursor: default;">{{ campaign.campaign_status }}</button>
+                                    {% else %}
+                                        <button>{{ campaign.campaign_status }}</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                            <td>
+                                <form class="delete-form" action="/home/mailblaster/delete_campaign" method="post">
+                                    <input type="hidden" value="{{ campaign.campaign_name }}" name="campaign_name"/>
+                                    <button style="background-color:red">delete</buttton>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="settings" style="display: none;">
+            <form class="settings-form" method="post" action="/home/mailblaster/settings">
+                <h1>Email Settings</h1>
+                <input type="text" name="smtp-server" id="smtp-server" placeholder="No SMTP server set" value="{{smtp_server if smtp_server is not none else ''}}" required><br>
+                <input type="email" name="sender-email" id="sender-email" placeholder="No sender email set" value = "{{smtp_email if smtp_email is not none else ''}}" required><br>
+                <input type="password" name="sender-password" id="sender-password" placeholder="No sender password set" value="{{smtp_password if smtp_password is not none else ''}}" required><br>
+                <input type="submit" id="save-settings" value="Save"/>
+            </form>
+        </div>
+
+        <div class="campaign" style="display: none;">
+            <form class="campaign-form" method="post" action="/home/mailblaster/add_campaign">
+                <h1>Create New Campaign</h1>
+                <input type="text" name="campaign_name" id="campaign_name" placeholder="Campaign name" required><br>
+
+                <input type="text" name="subject" id="subject" placeholder="Subject" required><br>
+
+                <textarea rows="5" placeholder="No recipients" name="recipients" id="recipients" readonly style="resize: none;"></textarea>
+                <textarea rows="10" placeholder="HTML Content" name="htmlContent" id="htmlContent" style="display: none;"></textarea>
+
+                <div id="button-container">
+                    <button type="button" id="load-recipients-btn">Load Recipients</button>
+                    <button type="button" id="load-html-btn">Load template</button></button>
+                </div>
+
+                <input type="file" id="recipient-file" accept=".csv" style="display: none;">
+                <input type="file" id="fileInput" accept=".html" style="display: none;">
+
+                <input type="submit" id="create-button" value="Create campaign"/>
+            </form>
+        </div>
+    </body>
+</html>

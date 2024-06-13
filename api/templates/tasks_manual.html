@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <title>
+            Tasks panel
+        </title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/tasks_manual.css') }}">
+        <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+          <h3>{{ username }}({{ email }})</h3>
+            {% if session['is_admin'] %}
+                <div class="table-div">
+                  <div class="header-div">
+                    <div class="header-cell-1">Taskname</div>
+                    <div class="header-cell-2">Platform</div>
+                    <div class="header-cell-3">Url</div>
+                    <div class="header-cell-4">Scraped emails</div>
+                    <div class="header-cell-5">Maximum emails</div>
+                    <div class="header-cell-6">Download</div>
+                    <div class="header-cell-7">Change</div>
+                  </div>
+                  <div class="search-div">
+                    <input class="search-input-down" type="text" placeholder="Search">
+                  </div>
+                  <div class="content-div">
+                    <div class="table">
+                        {% for task in tasks %}
+                            <div class="table-row">
+                                <div class="table-cell-1">
+                                    <label class="label-element">{{ task.taskname }}</label>
+                                </div>
+                                <div class="table-cell-2">
+                                    <label class="label-element">{{ task.platform }}</label>
+                                </div>
+                                <div class="table-cell-3">
+                                    <a class="label-element" href="{{ task.url }}">URL</a>
+                                </div>
+                                <div class="table-cell-4">
+                                    <input class="scraped_emails" value="{{ task.scraped_emails }}"/>
+                                </div>
+                                <div class="table-cell-5">
+                                    <label class="label-element">{{ task.maximum_emails }}</label>
+                                </div>
+                                <div class="table-cell-6">
+                                    <input class="download" value="{% if task.download is defined %}{{ task.download }}{% endif %}" placeholder="Download link">
+                                </div>
+                                <div class="table-cell-7">
+                                    <form class="task-form" action="/admin/change_task" method="post">
+                                        <button class="label-element">Modify</button>
+                                        <input type="hidden" name="taskname" value="{{ task.taskname }}">
+                                        <input type="hidden" name="scraped_emails" value="{{ task.scraped_emails }}">
+                                        <input type="hidden" name="download" value="{{ task.download }}">
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor%}
+                      </div>
+                  </div>
+                </div>
+            {% endif %}
+          </div>
+    </body>
+    <script>
+        $(document).ready(function() {
+            $(".scraped_emails").on("input", function () {
+                let form = $(this).closest(".table-row").find(".task-form");
+                form.find("[name='scraped_emails']").val($(this).val());
+            });
+
+            $(".download").on("input", function () {
+                let form = $(this).closest(".table-row").find(".task-form");
+                form.find("[name='download']").val($(this).val());
+            });
+
+            $(".task-form").submit(function(e) {
+                e.preventDefault();
+                let confirmed = confirm("Are you sure you want to continue?");
+                if (confirmed) {
+                    var data = $(this).serialize();
+                    $.post("/admin/change_task", data, function(result) {
+                        if (result.result === "success") {
+                            location.reload();
+                        } else {
+                            alert(result.message);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        const searchInput = document.querySelector('.search-input-down');
+        const tableRows = document.querySelectorAll('.table-row');
+
+        searchInput.addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+
+        tableRows.forEach(function(row) {
+            const name = row.querySelector('.label-element').innerText.toLowerCase();
+            if (!name.startsWith(searchValue)) {
+                row.style.display = 'none';
+                } else {
+                row.style.display = 'flex';
+                }
+            });
+        });
+    </script>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instagram Cold Call</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/instagram.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div id="localStorageContent">
+            <div id="localStorageContent">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phone</th>
+                            <th>Link</th>
+                            <th>Category</th>
+                            <th>Notice</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="buttonsContainer">
+            <button for="fileInput" id="uploadButton" style="width: 45%">Upload</button>
+            <button id="downloadButton" style="width: 45%">Download</button>
+            <input id="fileName" style="width: 90%" placeholder="Write filename here..."/>
+        </div>
+    </div>
+    <input type="file" id="fileInput" accept=".csv">
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const tableBody = document.querySelector('#localStorageContent tbody');
+        const downloadButton = document.getElementById('downloadButton');
+
+        // Data array to store the table data
+        let tableData = [];
+
+        // Function to refresh the table
+        function refreshTable() {
+            tableBody.innerHTML = '';
+            tableData.forEach((data, index) => {
+                const row = document.createElement('tr');
+
+                // Create a button for each phone number
+                const phoneCell = document.createElement('td');
+                const phones = data.phone.split(',');
+
+                for (const phone of phones) {
+                    const phoneButton = document.createElement('button');
+                    phoneButton.textContent = phone.trim(); // Trim to remove any leading or trailing spaces
+                    phoneButton.className = 'copy-button';
+                    phoneButton.addEventListener('click', function() {
+                        copyToClipboard(phone.trim()); // Copy the clicked phone number to clipboard
+                    });
+                    phoneCell.appendChild(phoneButton);
+                }
+
+
+                // Create a button for the link
+                const linkCell = document.createElement('td');
+                const linkButton = document.createElement('button');
+                linkButton.textContent = data.url;
+                linkButton.className = 'copy-button';
+                linkButton.addEventListener('click', function() {
+                    openInstagramProfile(data.url);
+                });
+                linkCell.appendChild(linkButton);
+
+                const selectCell = document.createElement('td');
+                const container = document.createElement('div');
+                container.className = 'custom-dropdown';
+
+                const selectElement = document.createElement('select');
+                selectElement.className = 'copy-button';
+
+                const options = [
+                    "",
+                    "answered",
+                    "not answered",
+                    "interested",
+                    "not interested",
+                    "pick up phone",
+                    "not pick up phone"
+                ];
+
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    optionElement.text = option;
+                    selectElement.appendChild(optionElement);
+                });
+
+                selectElement.value = data.category || "";
+                selectElement.addEventListener('change', function () {
+                    const selectedOption = selectElement.value;
+                    tableData[index].category = selectedOption;
+                    updateLocalStorage();
+                    localStorage.setItem(`selectedOption${index}`, selectedOption);
+                });
+
+                selectCell.appendChild(selectElement);
+
+                const textCell = document.createElement('td');
+                const textbox = document.createElement('textarea');
+                textbox.rows = 3; // Change type to text
+                textbox.value = data.notice !== undefined ? data.notice : '';
+                textbox.addEventListener('input', function() {
+                    data.notice = textbox.value;
+                    updateLocalStorage();
+                });
+                textCell.appendChild(textbox);
+
+                row.appendChild(phoneCell);
+                row.appendChild(linkCell);
+                row.appendChild(selectCell);
+                row.appendChild(textCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        fileInput.addEventListener('change', function() {
+            const selectedFile = fileInput.files[0];
+            const reader = new FileReader();
+
+            // Inside the FileReader onload event
+            reader.onload = function(event) {
+                const fileContent = event.target.result;
+                const lines = fileContent.split('\n');
+                tableData = [];
+
+                lines.forEach(line => {
+                    line = line.split(',');
+
+                    var phone = line.slice(0, -1).join(',').replace(/"/g, '');
+                    var url = line[line.length - 1];
+
+                    if (phone && url) {
+                        tableData.push({ phone, url });
+                    }
+                });
+
+                updateLocalStorage();
+                refreshTable();
+                status.textContent = 'File content has been saved to local storage.';
+            };
+
+            reader.readAsText(selectedFile);
+        });
+
+        document.getElementById('uploadButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            fileInput.click();
+        });
+
+        // Check if locally stored content exists
+        function loadFromLocalStorage() {
+            const savedContent = localStorage.getItem('uploadedFileContent');
+            if (savedContent) {
+                tableData = JSON.parse(savedContent);
+                refreshTable();
+            }
+        }
+
+        // Function to update localStorage with tableData
+        function updateLocalStorage() {
+            localStorage.setItem('uploadedFileContent', JSON.stringify(tableData));
+        }
+
+        loadFromLocalStorage();
+
+        // Download button click event
+        downloadButton.addEventListener('click', function() {
+            const csvContent = tableData.map(data => {
+                const phone = data.phone !== undefined ? data.phone.trim() : '';
+                const url = data.url !== undefined ? data.url.trim() : '';
+                const category = data.category !== undefined ? data.category.trim() : '';
+                const notice = data.notice !== undefined ? data.notice.trim() : '';
+                return `${phone},${url},${category},${notice}`;
+            }).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            fileName = document.getElementById('fileName').value;
+            if (fileName != '') {
+                a.download = `${fileName}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            else {
+                alert('Write name of file before download');
+            }
+        });
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const alertMessage = `Number ${text} copied to clipboard`;
+            alert(alertMessage);
+        }
+
+
+        // Function to open an Instagram profile in a new tab
+        function openInstagramProfile(profile) {
+            const isInstagram = profile.includes('instagram.com');
+            const isLinkedIn = profile.includes('linkedin.com');
+
+            if (isInstagram || isLinkedIn) {
+                const url = profile.startsWith('https://') ? profile : `https://${profile}`;
+                window.open(url, '_blank');
+            } else {
+                const instagramUrl = `https://www.instagram.com/${profile}/`;
+                window.open(instagramUrl, '_blank');
+            }
+
+        }
+
+    </script>
+</body>
+</html>

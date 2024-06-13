@@ -1,0 +1,50 @@
+1, American
+6, Other
+2, African Countries
+93, Afghanistan
+1684, American Samoa
+54, Argentina
+374, Armenia
+880, Bangladesh
+55, Brazil
+855, Cambodia
+56, Chile
+57, Colombia
+506, Costa Rica
+53, Cuba
+243, Democratic Republic of the Congo
+1767, Dominica
+1809, Dominican Republic
+1829, Dominican Republic
+1849, Dominican Republic
+593, Ecuador
+503, El Salvador
+372, Estonia
+679, Fiji
+1671, Guam
+502, Guatemala
+509, Haiti
+504, Honduras
+91, India
+62, Indonesia
+1876, Jamaica
+60, Malaysia
+52, Mexico
+95, Myanmar
+674, Nauru
+92, Pakistan
+970, Palestine
+507, Panama
+595, Paraguay
+51, Peru
+63, Philippines
+1787, Puerto Rico
+1939, Puerto Rico
+94, Sri Lanka
+963, Syria
+886, Taiwan
+992, Tajikistan
+66, Thailand
+690, Tokelau
+676, Tonga
+1868, Trinidad and Tobago
