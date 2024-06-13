@@ -13,8 +13,7 @@ from random import randint
 import logging, random, smtplib
 from email.mime.text import MIMEText
 
-project_folder = os.path.expanduser('~/website')
-load_dotenv(os.path.join(project_folder, '.env'))
+load_dotenv()
 
 USERNAME_ADMIN = os.getenv("USERNAME_ADMIN")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
@@ -150,7 +149,7 @@ def steno_webhook():
 mail = Mail(app)
 db = SQLAlchemy(app)
 
-with open(os.path.join(project_folder, 'filter/phone.txt'), "r") as f:
+with open('./filter/phone.txt', "r") as f:
     country_list = []
     numbers_list = []
     for line in f:
@@ -158,7 +157,7 @@ with open(os.path.join(project_folder, 'filter/phone.txt'), "r") as f:
         country_list.append(country.strip())
         numbers_list.append(number)
 
-with open(os.path.join(project_folder, 'filter/category.txt'), "r") as f:
+with open('./filter/category.txt', "r") as f:
     category_list = f.readlines()
     category_list = [category.strip().lower() for category in category_list]
 
