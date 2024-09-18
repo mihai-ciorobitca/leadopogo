@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <style>
+        body {
+            background-image: url(/static/background.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f1f1f1;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body class="d-flex justify-content-center align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <form method="POST" action="/register" class="form-container" onsubmit="return checkPasswordMatch()">
+                    <h1 class="text-center mb-4">Registration Form</h1>
+                    <div class="mb-3">
+                        <input type="text" id="username" name="username" class="form-control"
+                            placeholder="Enter your username" pattern="^[a-zA-Z0-9_]{5,20}$" maxlength="20"
+                            title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores."
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="Enter your password" pattern="^.{8,}$" maxlength="64"
+                                title="Password must contain at least 8 characters" required>
+                            <button type="button" class="btn btn-outline-secondary"
+                                onclick="togglePasswordVisibility('password')">
+                                <i id="eye-password" class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                                placeholder="Confirm your password" maxlength="64" title="Please confirm your password"
+                                required>
+                            <button type="button" class="btn btn-outline-secondary"
+                                onclick="togglePasswordVisibility('confirm_password')">
+                                <i id="eye-confirm_password" class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Email address"
+                            required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function togglePasswordVisibility(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById('eye-' + fieldId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+        }
+
+        function checkPasswordMatch() {
+            const password = document.getElementById("password");
+            const confirmPassword = document.getElementById("confirm_password");
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Passwords don't match");
+                return false;
+            } else {
+                confirmPassword.setCustomValidity("");
+                return true;
+            }
+        }
+    </script>
+</body>
+
+</html>

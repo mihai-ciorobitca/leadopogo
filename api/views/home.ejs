@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url(/static/background.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f1f1f1;
+            margin: 0;
+            height: 100vh;
+        }
+
+        main {
+            overflow: auto;
+            background-color: #fff;
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            padding: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .button-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            border: none;
+            width: 75px;
+            height: 75px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            font-size: 16px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("form.retract").submit(function(e){
+                e.preventDefault();
+                var platformSelect = $("#platform-select").val();
+                var collectType = $("#scrape-type").val();
+
+                if (platformSelect === "instagram" && collectType === "") {
+                    alert("Please choose a collect type");
+                    return;
+                }
+                var confirmSubmit = confirm('Are you sure you want to create this task?');
+                if (confirmSubmit === true) {
+                    var data = $(this).serialize();
+                    $.post("/retract", data, function(result){
+                        if (result.result === "created") {
+                            if(!alert("Task created")) {
+                               window.location.reload();
+                            }
+                        }
+                        else if(result.result === "not-created") {
+                            alert("Could not create task");
+                        }
+                        else if(result.result === "duplicated") {
+                            alert("Duplicated task");
+                        }
+                        else if(result.result === "no-credits"){
+                            alert("Not available at the moment");
+                        }
+                        else {
+                            alert(`Bad request ${result.result}`);
+                        }
+                    });
+                }
+            });
+        });
+
+        function limitInput(element, maxLength) {
+            const value = parseInt(element.value);
+            const credits = parseInt("<%= credits %>");
+            if (element.value.length > maxLength) {
+                element.value = element.value.slice(0, maxLength);
+            }
+
+            if (value > credits) {
+                alert("Not enough credits");
+            } else if (value < 1000){
+                alert("Min 1000 emails required");
+            }
+        }
+    </script>
+</head>
+<body class="d-flex justify-content-center align-items-center">
+    <main>
+        <h1>Welcome, <%= username %></h1>
+        <p>You have <%= credits %> credits.</p>
+        <form class="retract" action="/retract" method="POST">
+            <div class="mb-3">
+                <select id="platform-select" name="platform-select" class="form-select" onchange="populateScrapeTypeSelect()">
+                    <option value="instagram">Instagram</option>
+                    <option value="telegram">Telegram</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="linkedin">Linkedin</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="discord">Discord</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <input type="text" id="task-name" name="task-name" class="form-control" autocomplete="off" max="40" placeholder="Task name" required>
+            </div>
+            <div class="mb-3">
+                <input type="text" id="scrape-info" name="scrape-info" class="form-control" autocomplete="off" max="40" placeholder="URL" required>
+            </div>
+            <div class="mb-3">
+                <input type="number" id="max-emails" name="max-emails" class="form-control" min="1000" max="1016" pattern="^[1-9][0-9]*[^eE]$" placeholder="How many data to collect" onblur="limitInput(this, 8)" required>
+            </div>
+            <div class="mb-3">
+                <select id="scrape-type" name="scrape-type" class="form-select">
+                    <option value="" selected>Collect type</option>
+                    <option value="HT">HT (Hashtag)</option>
+                    <option value="FL">FL (Followers)</option>
+                    <option value="FO">FO (Followings)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Task</button>
+        </form>
+        <form class="task-list mt-3" action="<%= url_for('tasks_list') %>" method="POST">
+            <input type="hidden" name="username" value="<%= username %>">
+            <button type="submit" class="btn btn-secondary">Tasks List</button>
+        </form>
+        <form class="logout mt-3" action="<%= url_for('logout') %>" method="POST">
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </main>
+    <button type="button" class="button-icon" onclick="window.location.href='/home/filter'">Filter Leads</button>
+</body>
+</html>
