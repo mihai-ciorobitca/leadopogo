@@ -9,6 +9,9 @@ const app = express();
 // Supabase setup
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const USERNAME_ADMIN = process.env.USERNAME_ADMIN;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
 const supabase_client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Middleware setup
@@ -49,7 +52,7 @@ app.get('/home', async (req, res) => {
             if (error) throw error;
 
             if (user) {
-                const credits = user.status !== "special" ? user.credits : "unlimited";
+                const credits = user.status !== "special" ? user.credits : -1;
                 res.render('home', { username: req.session.username, credits: credits });
             } else {
                 req.session.destroy(() => {
@@ -80,6 +83,12 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
+        // Check for admin credentials
+        if (username === USERNAME_ADMIN && password === ADMIN_PASSWORD) {
+            req.session.is_admin = true;  // Set admin session
+            //req.session.is_super = true;  // Set super admin session
+            return res.json({ result: 'admin' });
+        }
         const { data: user, error } = await supabase_client
             .from('users')
             .select('*')
@@ -88,16 +97,16 @@ app.post('/login', async (req, res) => {
 
         if (error) throw error;
 
+        // Check for regular user credentials
         if (user && user.password === password) {
             req.session.username = username;
-            req.session.is_admin = user.is_admin;
-            req.session.is_super = user.is_super;
-            res.json({ result: user.is_admin ? 'home' : 'admin' });
+            return res.json({ result: 'home' });
         } else {
-            res.json({ result: 'error' });
+            return res.json({ result: 'error' });
         }
     } catch (error) {
-        res.json({ result: 'error' });
+        console.log(error);
+        return res.json({ result: 'error' });
     }
 });
 
@@ -152,8 +161,25 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// Admin Route (GET)
+app.get('/admin', async (req, res) => {
+    if (req.session.is_admin) {
+        const { data: users, error: fetchError } = await supabase_client
+            .from('users')
+            .select('*'); // Fetch all users
+        
+        if (fetchError) {
+            console.error(fetchError);
+            return res.status(500).send('Error fetching users');
+        }
+
+        return res.render('admin', { users, session: req.session }); // Pass users and session to the view
+    }
+    res.redirect('/login'); // Redirect to login if not admin
+});
+
 // Admin Routes
-app.post('/admin/buy_credits', async (req, res) => {
+app.post('/admin/buy-credits', async (req, res) => {
     const { username, credits } = req.body;
     try {
         const { data: user, error } = await supabase_client
@@ -182,7 +208,7 @@ app.post('/admin/buy_credits', async (req, res) => {
     }
 });
 
-app.post('/admin/clear_credits', async (req, res) => {
+app.post('/admin/clear-credits', async (req, res) => {
     const { username } = req.body;
     try {
         const { error } = await supabase_client
@@ -198,7 +224,7 @@ app.post('/admin/clear_credits', async (req, res) => {
     }
 });
 
-app.post('/admin/update_status', async (req, res) => {
+app.post('/admin/update-status', async (req, res) => {
     const { username, status } = req.body;
     try {
         const { error } = await supabase_client
@@ -214,7 +240,7 @@ app.post('/admin/update_status', async (req, res) => {
     }
 });
 
-app.post('/admin/delete_account', async (req, res) => {
+app.post('/admin/delete-account', async (req, res) => {
     const { username } = req.body;
     try {
         const { error } = await supabase_client
@@ -230,7 +256,7 @@ app.post('/admin/delete_account', async (req, res) => {
     }
 });
 
-app.post('/admin/tasks_manual', async (req, res) => {
+app.post('/admin/tasks-manual', async (req, res) => {
     const { username } = req.body;
     // Handle manual task assignment here
     res.redirect('/admin');

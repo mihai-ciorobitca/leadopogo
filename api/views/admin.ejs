@@ -1,82 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Form</title>
+    <title>
+        <% if (session.is_super) { %>
+            Super Admin Panel
+        <% } else { %>
+            Admin Panel
+        <% } %>
+    </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" type="image/png" href="/static/favicon.ico">
     <style>
-        body {
-            background-image: url(/static/background.png);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-color: #f1f1f1;
-            height: 100vh;
+        .table-container {
+            height: calc(100vh - 150px); /* Adjust height to fill the screen, accounting for header & search */
+            overflow-y: auto;
+            border: 1px solid #dee2e6; /* Optional: border around the table */
+            border-radius: 0.25rem; /* Optional: rounded corners */
+        }
+        .table {
+            min-width: 800px; /* Ensure the table has a minimum width */
+        }
+        .thead-light {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa; /* Background color for the header */
+            z-index: 10; /* Ensure it stays above other elements */
+        }
+        .sticky-search {
+            position: sticky;
+            top: 0;
+            z-index: 20; /* Ensure it stays above other elements */
+            background-color: white; /* Background color for search input */
+        }
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem; /* Space between elements */
+        }
+        .table-row {
+            align-items: center;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+        .input-group input {
+            width: 100px; /* Adjust input width as needed */
         }
     </style>
 </head>
-
-<body class="d-flex justify-content-center align-items-center">
-    <div class="container mt-5">
-        <div class="form-container">
-            <form method="POST" action="/register" onsubmit="return checkPasswordMatch()">
-                <h1 class="text-center mb-4">Registration Form</h1>
-                <div class="mb-3">
-                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username"
-                        pattern="^[a-zA-Z0-9_]{5,20}$" maxlength="20" title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores." required>
+<body>
+    <div class="container mt-4">
+        <% if (session.is_admin) { %>
+            <div class="sticky-search mb-3">
+                <input class="form-control" type="text" placeholder="Search">
+            </div>
+            <div class="table-responsive table-container">
+                <div class="table">
+                    <div class="thead-light">
+                        <div class="row">
+                            <div class="col text-center" style="width: 20%;">Name</div>
+                            <div class="col text-center" style="width: 15%;">Credits</div>
+                            <div class="col text-center" style="width: 15%;">Buy</div>
+                            <div class="col text-center" style="width: 15%;">Clear</div>
+                            <div class="col text-center" style="width: 20%;">Status</div>
+                            <div class="col text-center" style="width: 10%;">Account</div>
+                            <div class="col text-center" style="width: 10%;">Tasks</div>
+                        </div>
+                    </div>
+                    <div class="tbody">
+                        <% users.forEach(user => { %>
+                        <div class="row table-row">
+                            <div class="col text-center" style="width: 20%;">
+                                <label class="label-element"><%= user.username %></label>
+                            </div>
+                            <div class="col text-center" style="width: 15%;">
+                                <label class="label-element"><%= user.credits %></label>
+                            </div>
+                            <div class="col text-center" style="width: 15%;">
+                                <div class="input-group">
+                                    <form action="/admin/buy_credits" method="POST" class="d-inline-flex">
+                                        <input name="credits" type="number" min="1" placeholder="Nr. credits" required class="form-control" />
+                                        <input type="hidden" name="username" value="<%= user.username %>" />
+                                        <button type="submit" class="btn btn-primary">Buy</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col text-center" style="width: 15%;">
+                                <form action="/admin/clear_credits" method="POST">
+                                    <input type="hidden" name="username" value="<%= user.username %>" />
+                                    <button type="submit" class="btn btn-warning">Clear</button>
+                                </form>
+                            </div>
+                            <div class="col text-center" style="width: 20%;">
+                                <form action="/admin/update_status" method="POST">
+                                    <input type="hidden" name="username" value="<%= user.username %>" />
+                                    <select name="status" class="form-control" onchange="this.form.submit()">
+                                        <option value="confirmed" <% if (user.status === 'confirmed') { %>selected<% } %>>Confirmed</option>
+                                        <option value="unconfirmed" <% if (user.status === 'unconfirmed') { %>selected<% } %>>Unconfirmed</option>
+                                        <option value="special" <% if (user.status === 'special' && session.is_super) { %>selected<% } %> <% if (!session.is_super) { %>disabled<% } %>>Special</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <div class="col text-center" style="width: 10%;">
+                                <form action="/admin/delete_account" method="POST" onsubmit="return confirmDeleteAccount(event);">
+                                    <input type="hidden" name="username" value="<%= user.username %>" />
+                                    <button type="submit" class="btn btn-danger" <% if (!session.is_super) { %>disabled style="background-color: #cccccc;"<% } %>>Delete</button>
+                                </form>
+                            </div>
+                            <div class="col text-center" style="width: 10%;">
+                                <form action="/admin/tasks_manual" method="POST">
+                                    <input type="hidden" name="username" value="<%= user.username %>" />
+                                    <button type="submit" class="btn btn-info">Open</button>
+                                </form>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
                 </div>
-                <div class="mb-3 position-relative">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password"
-                        pattern="^.{8,}$" maxlength="64" title="Password must contain at least 8 characters" required>
-                    <button type="button" class="reveal-password-button" onclick="togglePasswordVisibility('password')">
-                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="mb-3 position-relative">
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your password"
-                        maxlength="64" title="Please confirm your password" required>
-                    <button type="button" class="reveal-password-button" onclick="togglePasswordVisibility('confirm_password')">
-                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="mb-3">
-                    <input type="email" name="email" id="email" class="form-control" placeholder="Email address" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Register</button>
-            </form>
-        </div>
+            </div>
+        <% } %>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <script>
-        function togglePasswordVisibility(fieldId) {
-            const passwordInput = document.getElementById(fieldId);
-            const revealPasswordButton = document.querySelector(`.reveal-password-button[onclick="togglePasswordVisibility('${fieldId}')"]`);
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                revealPasswordButton.innerHTML = '<i class="fa fa-eye" aria-hidden="true"></i>';
-            } else {
-                passwordInput.type = 'password';
-                revealPasswordButton.innerHTML = '<i class="fa fa-eye-slash" aria-hidden="true"></i>';
-            }
-        }
+        const searchInput = document.querySelector('.form-control[type="text"]');
+        const tableRows = document.querySelectorAll('.tbody .row');
 
-        function checkPasswordMatch() {
-            const password = document.getElementById("password");
-            const confirmPassword = document.getElementById("confirm_password");
-            if (password.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity("Passwords don't match");
-                return false;
-            } else {
-                confirmPassword.setCustomValidity("");
-                return true;
-            }
+        searchInput.addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            tableRows.forEach(row => {
+                const name = row.querySelector('.label-element').innerText.toLowerCase();
+                row.style.display = name.startsWith(searchValue) ? 'flex' : 'none';
+            });
+        });
+
+        function confirmDeleteAccount(event) {
+            return confirm('Are you sure you want to delete the account?');
         }
     </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.11/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-
 </html>
