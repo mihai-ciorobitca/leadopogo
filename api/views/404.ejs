@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .glitch {
+            position: relative;
+            display: inline-block;
+            font-weight: bold;
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: none; opacity: 1; }
+            6% { transform: skew(-0.5deg, 0.5deg); opacity: 0.75; }
+            8% { transform: skew(0.8deg, -0.7deg); opacity: 0.5; }
+            10% { transform: skew(-1deg, 0.5deg); opacity: 0.25; }
+            12% { transform: skew(0.4deg, -0.3deg); opacity: 0.75; }
+            16% { transform: skew(-0.3deg, 0.2deg); opacity: 0.5; }
+            20%, 100% { transform: none; opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+    <div class="container text-center">
+        <h1 class="display-3"><span class="glitch">404</span> - Page Not Found</h1>
+        <p class="lead">Oops! The page you are looking for could not be found.</p>
+        <p>Please check the URL or try again later.</p>
+        <a href="/" class="btn btn-dark">Go to Homepage</a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

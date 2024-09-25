@@ -2,6 +2,8 @@ const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const session = require('express-session');
 const path = require('path');
+const axios = require('axios');
+const cheerio = require('cheerio');
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +13,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const USERNAME_ADMIN = process.env.USERNAME_ADMIN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const API_URL = process.env.API_URL;
+const SESSION_ID = process.env.SESSION_ID;
+const CSRF_TOKEN = process.env.CSRF_TOKEN
 
 const supabase_client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -60,11 +65,24 @@ app.get('/home', async (req, res) => {
                 });
             }
         } else {
-            //res.redirect('/login');
-            res.render('home', { username: "test", credits: 0 });
+            res.redirect('/login');
         }
     } catch (error) {
         res.send(error.message);
+    }
+});
+
+// Route to handle scraping and return JSON data
+app.post('/home/tasks', async (req, res) => {
+    try {
+        if (req.session.username) {
+            const scrapedData = await scrapeData();
+            res.json(scrapedData);
+        } else {
+            return redirect("/");
+        }
+    } catch (error) {
+        res.status(500).json({ error: error });
     }
 });
 
@@ -167,7 +185,7 @@ app.get('/admin', async (req, res) => {
         const { data: users, error: fetchError } = await supabase_client
             .from('users')
             .select('*'); // Fetch all users
-        
+
         if (fetchError) {
             console.error(fetchError);
             return res.status(500).send('Error fetching users');
@@ -261,6 +279,71 @@ app.post('/admin/tasks-manual', async (req, res) => {
     // Handle manual task assignment here
     res.redirect('/admin');
 });
+
+app.use((req, res) => {
+    if (res.status(404)) {
+        res.render('404', { url: req.url })
+    } else if (res.status(405)) {
+        res.render('405', { url: req.url })
+    } else if (res.status(500)) {
+        res.render('500', { url: req.url })
+    }
+})
+
+// Logout Route
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Failed to log out');
+        }
+        res.redirect('/login'); // Redirect to login after logout
+    });
+});
+
+
+const scrapeData = async () => {
+    try {
+        const response = await axios.get(API_URL, {
+            headers: {
+                'Cookie': `sessionid=${SESSION_ID}; csrftoken=${CSRF_TOKEN}`,
+            },
+        });
+
+        const $ = cheerio.load(response.data);
+        const tableData = [];
+
+        // Scraping logic for the table rows
+        $('table tr').each((index, element) => {
+            if (index === 0) return;
+
+            const row = $(element);
+            const downloadLinks = [];
+
+            row.find('td').eq(4).find('a').each((i, el) => {
+                const href = $(el).attr('href');
+                if (href) {
+                    downloadLinks.push(href);
+                }
+            });
+
+            const data = {
+                source: row.find('td').eq(0).text().trim(),
+                sourceType: row.find('td').eq(1).text().trim(),
+                maxLeads: row.find('td').eq(2).text().trim(),
+                scrapedLeads: row.find('td').eq(3).text().trim(),
+                downloadLinks: downloadLinks.length > 0 ? downloadLinks : ['N/A'],
+                orderStatus: row.find('td').eq(5).text().trim(),
+            };
+
+            tableData.push(data);
+        });
+
+        return tableData;
+    } catch (error) {
+        console.error('Error scraping data:', error);
+        throw error;
+    }
+};
 
 // Start the server
 const PORT = process.env.PORT || 3000;

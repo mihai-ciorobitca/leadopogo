@@ -85,7 +85,7 @@
     <main>
         <h1>Welcome, <%= username %></h1>
         <p>You have <%= credits %> credits.</p>
-        <form class="retract" action="/retract" method="POST">
+        <form class="retract" action method="POST">
             <div class="mb-3">
                 <input type="text" id="task-name" name="task-name" class="form-control" autocomplete="off" maxlength="40" placeholder="Task name" required>
             </div>
