@@ -17,22 +17,12 @@
             background-color: #f1f1f1;
             margin: 0;
             height: 100vh;
-            display: flex; /* Use flexbox for centering */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
+            display: flex; 
+            justify-content: center;
+            align-items: center;
         }
 
-        main {
-            overflow: auto;
-            background-color: #fff;
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-primary, .btn-secondary {
+        .btn {
             width: 100%;
             margin-top: 10px;
         }
@@ -82,10 +72,10 @@
     </script>
 </head>
 <body>
-    <main>
+    <div class="col-lg-5 col-md-6 col-10 container p-4 bg-white rounded shadow-lg mx-auto">
         <h1>Welcome, <%= username %></h1>
         <p>You have <%= credits %> credits.</p>
-        <form class="retract" action method="POST">
+        <form class="retract" action="home/create-task" method="POST">
             <div class="mb-3">
                 <input type="text" id="task-name" name="task-name" class="form-control" autocomplete="off" maxlength="40" placeholder="Task name" required>
             </div>
@@ -112,6 +102,6 @@
         <form class="logout mt-3" action="/logout" method="POST">
             <button type="submit" class="btn btn-danger">Logout</button>
         </form>
-    </main>
+    </div>
 </body>
 </html>

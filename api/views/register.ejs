@@ -21,47 +21,47 @@
 </head>
 
 <body class="d-flex justify-content-center align-items-center">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                <form method="POST" action="/register" class="form-container" onsubmit="return checkPasswordMatch()">
-                    <h1 class="text-center mb-4">Registration Form</h1>
-                    <div class="mb-3">
-                        <input type="text" id="username" name="username" class="form-control"
-                            placeholder="Enter your username" pattern="^[a-zA-Z0-9_]{5,20}$" maxlength="20"
-                            title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores."
-                            required>
-                    </div>
-                    <div class="mb-3">
-                        <div class="input-group">
-                            <input type="password" id="password" name="password" class="form-control"
-                                placeholder="Enter your password" pattern="^.{8,}$" maxlength="64"
-                                title="Password must contain at least 8 characters" required>
-                            <button type="button" class="btn btn-outline-secondary"
-                                onclick="togglePasswordVisibility('password')">
-                                <i id="eye-password" class="fa fa-eye-slash" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="input-group">
-                            <input type="password" id="confirm_password" name="confirm_password" class="form-control"
-                                placeholder="Confirm your password" maxlength="64" title="Please confirm your password"
-                                required>
-                            <button type="button" class="btn btn-outline-secondary"
-                                onclick="togglePasswordVisibility('confirm_password')">
-                                <i id="eye-confirm_password" class="fa fa-eye-slash" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Email address"
-                            required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
-                </form>
+    <div class="col-lg-5 col-md-6 col-10 container mt-5">
+        <form method="POST" action="/register" class="p-4 bg-white rounded shadow-lg mx-auto"
+            onsubmit="return checkPasswordMatch()">
+            <h2 class="text-center mb-4">Registration Form</h2>
+            <div class="mb-3">
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username"
+                    pattern="^[a-zA-Z0-9_]{5,20}$" maxlength="20"
+                    title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores."
+                    required>
             </div>
-        </div>
+            <div class="mb-3">
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" pattern="^.{8,}$" maxlength="64"
+                        title="Password must contain at least 8 characters" required>
+                    <button type="button" class="btn btn-outline-secondary"
+                        onclick="togglePasswordVisibility('password')">
+                        <i id="eye-password" class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="input-group">
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                        placeholder="Confirm your password" maxlength="64" title="Please confirm your password"
+                        required>
+                    <button type="button" class="btn btn-outline-secondary"
+                        onclick="togglePasswordVisibility('confirm_password')">
+                        <i id="eye-confirm_password" class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <input type="email" name="email" id="email" class="form-control" placeholder="Email address" required>
+            </div>
+            <button type="submit" class="mb-3 btn btn-primary w-100">Register</button>
+            <div class="text-center">
+                <p>Do you have an account? <a href="/login" class="text-success text-decoration-none">Login</a></p>
+            </div>
+        </form>
+    </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
