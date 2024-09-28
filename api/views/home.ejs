@@ -33,7 +33,7 @@
         function copyCode() {
             const codeValue = document.getElementById('code-value').value;
             navigator.clipboard.writeText(codeValue).then(() => {
-                alert('Code copied: ');
+                alert('Code copied');
             }).catch(err => {
                 console.error('Failed to copy code', err);
             });
@@ -74,7 +74,7 @@
                     <option value="FO">FO (Followings)</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Create Task</button>
+            <button type="submit" class="btn btn-primary" <%= is_admin ? '' : 'disabled' %>>Create Task</button>
         </form>
         <button type="button" class="btn btn-secondary" onclick="window.location.href='/home/tasks'">Tasks List</button>
         <form class="logout mt-3" action="/logout" method="POST">

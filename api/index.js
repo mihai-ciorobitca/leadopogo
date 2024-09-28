@@ -6,7 +6,6 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
-const qrcode = require('qrcode');
 
 require('dotenv').config();
 
@@ -44,10 +43,17 @@ app.get('/', (req, res) => {
 
 app.get('/home', async (req, res) => {
     if (req.session.username) {
+        const username = req.session.username;
+        const { data: user, error: fetchError } = await supabase_client
+            .from('users')
+            .select('code, credits')
+            .eq('username', req.session.username)
+            .single()
         res.render('home', {
-            username: req.session.username,
-            credits: req.session.credits,
-            code: req.session.code
+            username: username,
+            credits: user.credits,
+            code: user.code,
+            is_admin: req.session.is_admin
         });
     } else {
         res.redirect('/login');
@@ -56,13 +62,11 @@ app.get('/home', async (req, res) => {
 
 app.post('/home/create-task', async (req, res) => {
     try {
-        // Extracting task-related information from the request body
         const taskName = req.body['task-name'];
         const taskSource = req.body['task-source'];
         const maxEmails = parseInt(req.body['task-emails']);
         const scrapeType = req.body['task-type'];
 
-        // Fetch the user's existing tasks to check for duplicates
         const { data: existingTasks, error: fetchError } = await supabase_client
             .from('tasks')
             .select('*')
@@ -70,20 +74,19 @@ app.post('/home/create-task', async (req, res) => {
             .eq('task_name', taskName);
 
         if (fetchError) throw fetchError;
-
         if (existingTasks.length > 0) {
             return res.status(400).send({ message: 'Task with this name already exists.' });
         }
 
-        // Check if the user has enough credits
         const credits = parseInt(req.session.credits);
         if (maxEmails > credits) {
             return res.status(400).send({ message: 'Not enough credits to create this task.' });
         }
 
-        // Inserting the task into the 'tasks' table
+        const taskCreationResponse = await postTask(scrapeType, taskSource, maxEmails);
+
         const { error: insertError } = await supabase_client
-            .from('tasks') // Change this to the correct table name
+            .from('tasks')
             .insert([{
                 username: req.session.username,
                 task_name: taskName,
@@ -95,13 +98,14 @@ app.post('/home/create-task', async (req, res) => {
         if (insertError) throw insertError;
 
         req.session.credits -= maxEmails;
-
-        const { error: error } = await supabase_client
+        const { error: updateError } = await supabase_client
             .from('users')
             .update({ credits: req.session.credits })
             .eq('username', req.session.username);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
+
+        console.log('Task created via postTask:', taskCreationResponse);
 
         return res.redirect("/home");
     } catch (error) {
@@ -109,7 +113,6 @@ app.post('/home/create-task', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 app.get('/home/tasks', async (req, res) => {
     if (req.session.username) {
@@ -135,26 +138,21 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-
     if (username === USERNAME_ADMIN && password === ADMIN_PASSWORD) {
         req.session.is_admin = true;
         return res.json({ result: 'admin' });
     }
-
     if (username === USERNAME_ADMIN && password === SUPERADMIN_PASSWORD) {
         req.session.is_superadmin = true;
         req.session.is_admin = true;
         return res.json({ result: 'admin' });
     }
-
     const { data: user, error } = await supabase_client
         .from('users')
         .select('*')
-        .eq('username', username)
+        .eq('username', username.toLowerCase())
         .single();
-
     if (error) throw error;
-
     if (user && await bcrypt.compare(password, user.password)) {
         req.session.username = username;
         req.session.credits = user.credits;
@@ -165,45 +163,84 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/recover', (req, res) => {
+    res.render('recover', { message: null });
+});
+
+app.post('/recover', async (req, res) => {
+    const { username, secret, new_password } = req.body;
+    try {
+        console.log('Recover request body:', req.body);
+        if (!new_password || new_password.trim() === '') {
+            return res.render('recover', { message: 'New password is required.' });
+        }
+        const { data: user, error: userError } = await supabase_client
+            .from('users')
+            .select('code')
+            .eq('username', username)
+            .single();
+        if (userError || !user) {
+            return res.render('recover', { message: 'Invalid username or user does not exist' });
+        }
+        const code = user.code;
+        if (!code) {
+            return res.render('recover', { message: 'No OTP code found for this user.' });
+        }
+        const isOtpValid = speakeasy.totp.verify({
+            secret: code,
+            encoding: 'base32',
+            token: secret,
+            window: 1
+        });
+        if (isOtpValid) {
+            const hashedPassword = await bcrypt.hash(new_password, 10);
+            const { error: updateError } = await supabase_client
+                .from('users')
+                .update({
+                    password: hashedPassword
+                })
+                .eq("username", username);
+            if (updateError) {
+                console.error('Error updating password:', updateError);
+                return res.render('recover', { message: 'Failed to update password. Please try again.' });
+            }
+            return res.redirect("/login");
+        } else {
+            return res.render('recover', { message: 'Invalid OTP. Please try again.' });
+        }
+    } catch (error) {
+        console.error('Error during OTP verification:', error);
+        return res.status(500).render('recover', { message: 'Internal Server Error' });
+    }
+});
+
 app.get('/register', (req, res) => {
     res.render('register');
 });
 
 app.post('/register', async (req, res) => {
     const { username, password, email } = req.body;
-
     try {
-        // Check if the username already exists
         const { count: userCount, error: fetchUserError } = await supabase_client
             .from('users')
             .select('username', { count: 'exact' })
             .eq('username', username);
-
         if (fetchUserError) throw fetchUserError;
-
         if (userCount > 0) {
             return res.json({ result: 'exist-user' });
         }
-
-        // Hash the password before storing it
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Generate a Google Authenticator secret
         const secret = speakeasy.generateSecret({ name: `YourAppName (${username})` });
-
-        // Insert the new user with hashed password and secret
         const { error: insertError } = await supabase_client
             .from('users')
             .insert([{
-                username,
+                username: username.toLowerCase(),
                 password: hashedPassword,
-                code: secret.base32,  // Store the secret in the `code` field
+                code: secret.base32,
                 status: 'unconfirmed'
             }]);
-
         if (insertError) throw insertError;
         return res.redirect("/login")
-
     } catch (error) {
         console.error('Error during registration:', error);
         res.status(500).send('Internal Server Error');
@@ -215,7 +252,8 @@ app.get('/admin', async (req, res) => {
         try {
             const { data: users, error: fetchError } = await supabase_client
                 .from('users')
-                .select('*');
+                .select('*')
+                .order('username', { ascending: true })
             if (fetchError) {
                 console.error(fetchError);
                 return res.status(500).send('Error fetching users');
@@ -308,12 +346,10 @@ app.post('/admin/home', async (req, res) => {
             .select('*')
             .eq('username', username)
             .single();
-
         if (error) throw error;
-
         req.session.username = username;
         req.session.credits = user.credits;
-        req.session.code = user.email;
+        req.session.code = user.code;
         res.redirect('/home');
     } catch (error) {
         console.error('Error during admin home redirection:', error);
@@ -331,7 +367,6 @@ app.post('/logout', (req, res) => {
     });
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error occurred:', err);
     res.status(500).send('Internal Server Error');
@@ -348,10 +383,8 @@ const scrapeData = async () => {
         const tableData = [];
         $('table tr').each((index, element) => {
             if (index === 0) return;
-
             const row = $(element);
             const downloadLinks = [];
-
             row.find('td').eq(4).find('a').each((i, el) => {
                 const href = $(el).attr('href');
                 if (href) {
@@ -377,7 +410,7 @@ const scrapeData = async () => {
 
 const postTask = async (source_type, source, max_leads) => {
     try {
-        const getResponse = await axios.get(url, {
+        const getResponse = await axios.get(API_URL, {
             headers: {
                 'Cookie': `sessionid=${SESSION_ID}; csrftoken=${CSRF_TOKEN}`,
             }
@@ -387,7 +420,7 @@ const postTask = async (source_type, source, max_leads) => {
             throw new Error('CSRF token not found');
         }
         const csrfMiddlewareToken = csrfMiddlewareTokenMatch[1];
-        const postResponse = await axios.post(url, new URLSearchParams({
+        const postResponse = await axios.post(API_URL, new URLSearchParams({
             source_type: source_type,
             source: source,
             max_leads: max_leads,
@@ -396,7 +429,7 @@ const postTask = async (source_type, source, max_leads) => {
             headers: {
                 'Cookie': `sessionid=${SESSION_ID}; csrftoken=${CSRF_TOKEN}`,
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Referer': url
+                'Referer': API_URL
             },
         });
         return postResponse.data;
