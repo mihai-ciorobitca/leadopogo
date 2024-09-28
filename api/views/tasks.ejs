@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks</title>
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Hide table on small screens */
+        @media (max-width: 767.98px) {
+            .table-container {
+                display: none;
+            }
+
+            .card-container {
+                display: flex;
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .card {
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Show table on larger screens */
+        @media (min-width: 768px) {
+            .card-container {
+                display: none;
+            }
+
+            .table-container {
+                display: block;
+            }
+
+            .card-body .btn {
+                width: 100%;
+            }
+
+            .open {
+                width: 100%;
+            }
+
+        }
+
+        /* Sticky search bar */
+        .sticky-search {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            /* Background color for visibility */
+            z-index: 1020;
+            /* Bootstrap's sticky element z-index */
+            padding: 10px;
+            /* Optional padding */
+        }
+
+        body {
+            background-image: url(/static/background.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f1f1f1;
+            height: 100vh;
+        }
+
+        .thead-light-custom {
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-light d-flex flex-column" style="height: 100vh; margin: 0;">
+
+    <div class="container-fluid flex-grow-1">
+        <div class="sticky-search sticky-top mb-3 mt-3">
+            <input id="search-input" class="form-control" type="text" placeholder="Search">
+        </div>
+
+        <!-- Table Layout for Larger Screens -->
+        <div class="table-responsive table-container">
+            <table class="table table-bordered">
+                <thead class="thead-light-custom">
+                    <tr>
+                        <th class="text-center">Name</th>
+                        <th class="text-center">Type</th>
+                        <th class="text-center">Emails</th>
+                        <th class="text-center">Open</th>
+                    </tr>
+                </thead>
+                <tbody class="thead-light-custom">
+                    <% tasks.forEach(task=> { %>
+                        <tr>
+                            <td class="text-center">
+                                <label class="label-element">
+                                    <%= task.task_name %>
+                                </label>
+                            </td>
+                            <td class="text-center">
+                                <label class="label-element">
+                                    <%= task.task_type %>
+                                </label>
+                            </td>
+                            <td class="text-center">
+                                <label class="label-element">
+                                    <%= task.task_emails %>
+                                </label>
+                            </td>
+                            <td class="text-center">
+                                <form action="" method="POST">
+                                    <input type="hidden" name="username" value="<%= task.task_name %>" />
+                                    <button type="submit" class="btn btn-info">Open</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card Layout for Mobile -->
+        <div class="card-container flex-grow-1">
+            <% tasks.forEach(task=> { %>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <%= task.task_name %>
+                        </h5>
+                        <p class="card-text">Type: <%= task.task_type %>
+                        </p>
+                        <p class="card-text">Emails: <%= task.task_emails %>
+                        </p>
+                        <form action="/home/tasks/task-status" method="POST">
+                            <input type="hidden" name="username" value="<%= task.task_name %>" />
+                            <button type="submit" class="btn btn-info open">Open</button>
+                        </form>
+                    </div>
+                </div>
+                <% }); %>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const tableRows = document.querySelectorAll('.table tbody tr');
+        const cards = document.querySelectorAll('.card');
+
+        searchInput.addEventListener('input', function () {
+            const searchValue = this.value.toLowerCase();
+
+            // For table view
+            tableRows.forEach(function (row) {
+                const name = row.querySelector('.label-element').innerText.toLowerCase();
+                row.style.display = name.startsWith(searchValue) ? 'table-row' : 'none';
+            });
+
+            // For card view
+            cards.forEach(function (card) {
+                const name = card.querySelector('.card-title').innerText.toLowerCase();
+                card.style.display = name.startsWith(searchValue) ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+
+</html>

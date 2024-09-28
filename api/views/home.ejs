@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +18,7 @@
             background-color: #f1f1f1;
             margin: 0;
             height: 100vh;
-            display: flex; 
+            display: flex;
             justify-content: center;
             align-items: center;
         }
@@ -29,64 +30,44 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $("form.retract").submit(function(e) {
-                e.preventDefault();
-                const platformSelect = $("#platform-select").val();
-                const collectType = $("#scrape-type").val();
-
-                if (platformSelect === "instagram" && collectType === "") {
-                    alert("Please choose a collect type");
-                    return;
-                }
-
-                const confirmSubmit = confirm('Are you sure you want to create this task?');
-                if (confirmSubmit) {
-                    const data = $(this).serialize();
-                    $.post("/retract", data, function(result) {
-                        if (result.result === "created") {
-                            alert("Task created");
-                            window.location.reload();
-                        } else {
-                            alert(result.message || "An error occurred");
-                        }
-                    });
-                }
+        function copyCode() {
+            const codeValue = document.getElementById('code-value').value;
+            navigator.clipboard.writeText(codeValue).then(() => {
+                alert('Code copied: ');
+            }).catch(err => {
+                console.error('Failed to copy code', err);
             });
-        });
-
-        function limitInput(element, maxLength) {
-            const value = parseInt(element.value);
-            const credits = parseInt("<%= credits %>");
-
-            if (element.value.length > maxLength) {
-                element.value = element.value.slice(0, maxLength);
-            }
-
-            if (value > credits) {
-                alert("Not enough credits");
-            } else if (value < 1000) {
-                alert("Min 1000 emails required");
-            }
         }
     </script>
 </head>
+
 <body>
     <div class="col-lg-5 col-md-6 col-10 container p-4 bg-white rounded shadow-lg mx-auto">
-        <h1>Welcome, <%= username %></h1>
+        <h1>Welcome, <%= username %>
+        </h1>
         <p>You have <%= credits %> credits.</p>
-        <form class="retract" action="home/create-task" method="POST">
+
+        <!-- Code container with Copy button -->
+        <div class="mb-3">
+            <input type="hidden" value="<%= code %>" id="code-value">
+            <button type="button" class="btn btn-outline-secondary" onclick="copyCode()">Copy Code</button>
+        </div>
+
+        <form class="retract" action="/home/create-task" method="POST">
             <div class="mb-3">
-                <input type="text" id="task-name" name="task-name" class="form-control" autocomplete="off" maxlength="40" placeholder="Task name" required>
+                <input type="text" id="task-name" name="task-name" class="form-control" autocomplete="off"
+                    maxlength="40" placeholder="Task name" required>
             </div>
             <div class="mb-3">
-                <input type="text" id="scrape-info" name="scrape-info" class="form-control" autocomplete="off" maxlength="40" placeholder="URL" required>
+                <input type="text" id="task-source" name="task-source" class="form-control" autocomplete="off"
+                    maxlength="40" placeholder="Task source" required>
             </div>
             <div class="mb-3">
-                <input type="number" id="max-emails" name="max-emails" class="form-control" min="1000" max="1016" placeholder="How many data to collect" onblur="limitInput(this, 8)" required>
+                <input type="number" id="max-emails" name="task-emails" class="form-control" min="500"
+                    max="<%= credits %>" placeholder="How many data to collect" required>
             </div>
             <div class="mb-3">
-                <select id="scrape-type" name="scrape-type" class="form-select" required>
+                <select id="scrape-type" name="task-type" class="form-select" required>
                     <option value="" selected>Collect type</option>
                     <option value="HT">HT (Hashtag)</option>
                     <option value="FL">FL (Followers)</option>
@@ -95,13 +76,12 @@
             </div>
             <button type="submit" class="btn btn-primary">Create Task</button>
         </form>
-        <form class="task-list mt-3" action="/home/tasks" method="POST">
-            <input type="hidden" name="username" value="<%= username %>">
-            <button type="submit" class="btn btn-secondary">Tasks List</button>
-        </form>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='/home/tasks'">Tasks List</button>
         <form class="logout mt-3" action="/logout" method="POST">
             <button type="submit" class="btn btn-danger">Logout</button>
         </form>
+        <div class="error" id="error-message"></div>
     </div>
 </body>
+
 </html>

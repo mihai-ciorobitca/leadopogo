@@ -1,140 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <% if (session.is_super) { %>
+        <% if (session.is_superadmin) { %>
             Super Admin Panel
-        <% } else { %>
-            Admin Panel
-        <% } %>
+            <% } else { %>
+                Admin Panel
+                <% } %>
     </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" type="image/png" href="/static/favicon.ico">
     <style>
-        .table-container {
-            height: calc(100vh - 150px); /* Adjust height to fill the screen, accounting for header & search */
-            overflow-y: auto;
-            border: 1px solid #dee2e6; /* Optional: border around the table */
-            border-radius: 0.25rem; /* Optional: rounded corners */
+        /* Hide table on small screens */
+        @media (max-width: 767.98px) {
+            .table-container {
+                display: none;
+            }
         }
-        .table {
-            min-width: 800px; /* Ensure the table has a minimum width */
+
+        /* Show cards on small screens */
+        @media (max-width: 767.98px) {
+            .card-container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .card {
+                margin-bottom: 15px;
+            }
+
+            .clear, .delete, .open {
+                width: 100%;
+            }
         }
-        .thead-light {
-            position: sticky;
-            top: 0;
-            background-color: #f8f9fa; /* Background color for the header */
-            z-index: 10; /* Ensure it stays above other elements */
+
+        /* Show table on larger screens */
+        @media (min-width: 768px) {
+            .card-container {
+                display: none;
+            }
+
+            .table-container {
+                display: block;
+            }
         }
+
+        /* Sticky search bar style */
         .sticky-search {
-            position: sticky;
-            top: 0;
-            z-index: 20; /* Ensure it stays above other elements */
-            background-color: white; /* Background color for search input */
+            background-color: white;
+            /* Background color for visibility */
+            padding: 10px;
+            /* Optional padding */
+            z-index: 1020;
+            /* Bootstrap's sticky element z-index */
         }
-        .center-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem; /* Space between elements */
-        }
-        .table-row {
-            align-items: center;
-        }
-        .input-group {
-            display: flex;
-            align-items: center;
-        }
-        .input-group input {
-            width: 100px; /* Adjust input width as needed */
+
+        body {
+            background-image: url(/static/background.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f1f1f1;
+            height: 100vh;
         }
     </style>
 </head>
-<body>
-    <div class="container mt-4">
+
+<body class="bg-light d-flex flex-column" style="height: 100vh; margin: 0;">
+
+    <div class="container-fluid flex-grow-1">
         <% if (session.is_admin) { %>
-            <div class="sticky-search mb-3">
-                <input class="form-control" type="text" placeholder="Search">
+            <div class="sticky-search sticky-top mb-3 mt-3">
+                <input class="form-control" type="text" placeholder="Search" id="search-input">
             </div>
-            <div class="table-responsive table-container">
-                <div class="table">
-                    <div class="thead-light">
-                        <div class="row">
-                            <div class="col text-center" style="width: 20%;">Name</div>
-                            <div class="col text-center" style="width: 15%;">Credits</div>
-                            <div class="col text-center" style="width: 15%;">Buy</div>
-                            <div class="col text-center" style="width: 15%;">Clear</div>
-                            <div class="col text-center" style="width: 20%;">Status</div>
-                            <div class="col text-center" style="width: 10%;">Account</div>
-                            <div class="col text-center" style="width: 10%;">Tasks</div>
+
+            <!-- Card Layout for Mobile -->
+            <div class="card-container">
+                <% users.forEach(user=> { %>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">
+                                <%= user.username %>
+                            </h5>
+                            <p class="card-text text-center">Credits: <%= user.credits %>
+                            </p>
+                            <form action="/admin/buy-credits" method="POST" class="mb-2">
+                                <div class="input-group">
+                                    <input name="credits" type="number" min="1" placeholder="Nr. credits" required
+                                        class="form-control" />
+                                    <input type="hidden" name="username" value="<%= user.username %>" />
+                                    <button type="submit" class="btn btn-primary">Buy</button>
+                                </div>
+                            </form>
+                            <form action="/admin/clear-credits" method="POST" class="mb-2">
+                                <input type="hidden" name="username" value="<%= user.username %>" />
+                                <button type="submit" class="btn btn-warning clear">Clear</button>
+                            </form>
+                            <form action="/admin/update-status" method="POST" class="mb-2">
+                                <input type="hidden" name="username" value="<%= user.username %>" />
+                                <select name="status" class="form-select" onchange="this.form.submit()">
+                                    <option value="confirmed" <% if (user.status==='confirmed' ) { %>selected<% } %>
+                                            >Confirmed</option>
+                                    <option value="unconfirmed" <% if (user.status==='unconfirmed' ) { %>selected<% } %>
+                                            >Unconfirmed</option>
+                                    <option value="special" <% if (user.status==='special' && session.is_superadmin) {
+                                        %>selected<% } %>
+                                            <% if (!session.is_superadmin) { %>disabled<% } %>>Special</option>
+                                </select>
+                            </form>
+                            <form action="/admin/delete-account" method="POST"
+                                onsubmit="return confirmDeleteAccount(event);" class="mb-2">
+                                <input type="hidden" name="username" value="<%= user.username %>" />
+                                <button type="submit" class="btn btn-danger delete" <% if (!session.is_superadmin) { %>disabled
+                                    style="background-color: #cccccc;"<% } %>>Delete</button>
+                            </form>
+                            <form action="/admin/home" method="POST">
+                                <input type="hidden" name="username" value="<%= user.username %>" />
+                                <button type="submit" class="btn btn-info open">Open</button>
+                            </form>
                         </div>
                     </div>
-                    <div class="tbody">
-                        <% users.forEach(user => { %>
-                        <div class="row table-row">
-                            <div class="col text-center" style="width: 20%;">
-                                <label class="label-element"><%= user.username %></label>
-                            </div>
-                            <div class="col text-center" style="width: 15%;">
-                                <label class="label-element"><%= user.credits %></label>
-                            </div>
-                            <div class="col text-center" style="width: 15%;">
-                                <div class="input-group">
-                                    <form action="/admin/buy_credits" method="POST" class="d-inline-flex">
-                                        <input name="credits" type="number" min="1" placeholder="Nr. credits" required class="form-control" />
+                    <% }); %>
+            </div>
+
+            <!-- Table Layout for Larger Screens -->
+            <div class="table-responsive table-container">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="text-center">Name</th>
+                            <th class="text-center">Credits</th>
+                            <th class="text-center">Buy</th>
+                            <th class="text-center">Clear</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Delete</th>
+                            <th class="text-center">Open</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user=> { %>
+                            <tr>
+                                <td class="text-center">
+                                    <%= user.username %>
+                                </td>
+                                <td class="text-center">
+                                    <%= user.credits %>
+                                </td>
+                                <td class="text-center">
+                                    <form action="/admin/buy-credits" method="POST" class="d-inline-flex">
+                                        <input name="credits" type="number" min="1" placeholder="Nr. credits" required
+                                            class="form-control" style="width: auto; display: inline-block;" />
                                         <input type="hidden" name="username" value="<%= user.username %>" />
                                         <button type="submit" class="btn btn-primary">Buy</button>
                                     </form>
-                                </div>
-                            </div>
-                            <div class="col text-center" style="width: 15%;">
-                                <form action="/admin/clear_credits" method="POST">
-                                    <input type="hidden" name="username" value="<%= user.username %>" />
-                                    <button type="submit" class="btn btn-warning">Clear</button>
-                                </form>
-                            </div>
-                            <div class="col text-center" style="width: 20%;">
-                                <form action="/admin/update_status" method="POST">
-                                    <input type="hidden" name="username" value="<%= user.username %>" />
-                                    <select name="status" class="form-control" onchange="this.form.submit()">
-                                        <option value="confirmed" <% if (user.status === 'confirmed') { %>selected<% } %>>Confirmed</option>
-                                        <option value="unconfirmed" <% if (user.status === 'unconfirmed') { %>selected<% } %>>Unconfirmed</option>
-                                        <option value="special" <% if (user.status === 'special' && session.is_super) { %>selected<% } %> <% if (!session.is_super) { %>disabled<% } %>>Special</option>
-                                    </select>
-                                </form>
-                            </div>
-                            <div class="col text-center" style="width: 10%;">
-                                <form action="/admin/delete_account" method="POST" onsubmit="return confirmDeleteAccount(event);">
-                                    <input type="hidden" name="username" value="<%= user.username %>" />
-                                    <button type="submit" class="btn btn-danger" <% if (!session.is_super) { %>disabled style="background-color: #cccccc;"<% } %>>Delete</button>
-                                </form>
-                            </div>
-                            <div class="col text-center" style="width: 10%;">
-                                <form action="/admin/tasks_manual" method="POST">
-                                    <input type="hidden" name="username" value="<%= user.username %>" />
-                                    <button type="submit" class="btn btn-info">Open</button>
-                                </form>
-                            </div>
-                        </div>
-                        <% }); %>
-                    </div>
-                </div>
+                                </td>
+                                <td class="text-center">
+                                    <form action="/admin/clear-credits" method="POST">
+                                        <input type="hidden" name="username" value="<%= user.username %>" />
+                                        <button type="submit" class="btn btn-warning">Clear</button>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <form action="/admin/update-status" method="POST">
+                                        <input type="hidden" name="username" value="<%= user.username %>" />
+                                        <select name="status" class="form-select" onchange="this.form.submit()">
+                                            <option value="confirmed" <% if (user.status==='confirmed' ) { %>selected<%
+                                                    } %>>Confirmed</option>
+                                            <option value="unconfirmed" <% if (user.status==='unconfirmed' ) { %>
+                                                selected<% } %>>Unconfirmed</option>
+                                            <option value="special" <% if (user.status==='special' &&
+                                                session.is_superadmin) { %>selected<% } %>
+                                                    <% if (!session.is_superadmin) { %>disabled<% } %>>Special</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <form action="/admin/delete-account" method="POST"
+                                        onsubmit="return confirmDeleteAccount(event);">
+                                        <input type="hidden" name="username" value="<%= user.username %>" />
+                                        <button type="submit" class="btn btn-danger" <% if (!session.is_superadmin) {
+                                            %>disabled style="background-color: #cccccc;"<% } %>>Delete</button>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <form action="/admin/home" method="POST">
+                                        <input type="hidden" name="username" value="<%= user.username %>" />
+                                        <button type="submit" class="btn btn-info">Open</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
             </div>
-        <% } %>
+            <% } %>
     </div>
-    
-    <script>
-        const searchInput = document.querySelector('.form-control[type="text"]');
-        const tableRows = document.querySelectorAll('.tbody .row');
 
-        searchInput.addEventListener('input', function() {
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const cards = document.querySelectorAll('.card');
+        const tableRows = document.querySelectorAll('.table tbody tr');
+
+        searchInput.addEventListener('input', function () {
             const searchValue = this.value.toLowerCase();
+
+            // For card view
+            cards.forEach(card => {
+                const username = card.querySelector('.card-title').innerText.toLowerCase();
+                card.style.display = username.includes(searchValue) ? 'block' : 'none';
+            });
+
+            // For table view
             tableRows.forEach(row => {
-                const name = row.querySelector('.label-element').innerText.toLowerCase();
-                row.style.display = name.startsWith(searchValue) ? 'flex' : 'none';
+                const username = row.cells[0].innerText.toLowerCase();
+                row.style.display = username.includes(searchValue) ? '' : 'none';
             });
         });
 
@@ -146,4 +229,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.11/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
