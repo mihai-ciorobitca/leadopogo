@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <style>
+        body {
+            background-image: url(/static/background.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f1f1f1;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .sticky-div {
+            background-color: white;
+            padding: 10px;
+            z-index: 1020;
+        }
+
+        .table-container {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th,
+        td {
+            text-align: center;
+        }
+
+        /* Hide table on small screens */
+        @media (max-width: 767.98px) {
+            .table-container {
+                display: none;
+            }
+
+            .card-container {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto; /* Allow vertical scrolling */
+                height: calc(100vh - 100px); /* Adjust height for cards */
+            }
+
+            .card {
+                margin-bottom: 15px;
+            }
+
+            .clear,
+            .delete,
+            .open {
+                width: 100%;
+            }
+        }
+
+        /* Show table on larger screens */
+        @media (min-width: 768px) {
+            .card-container {
+                display: none;
+            }
+
+            .table-container {
+                display: block;
+            }
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-light d-flex flex-column">
+
+    <div class="container-fluid flex-grow-1">
+        <div class="sticky-div sticky-top mb-3 mt-3">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <div class="d-flex">
+                        <input id="addInput" class="form-control me-2" placeholder="Write here the option..." />
+                        <button id="addButton" class="btn btn-primary btn-sm">Add</button>
+                        <button id="removeButton" class="btn btn-danger btn-sm ms-2">Remove</button>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <div class="d-flex">
+                        <input id="fileName" class="form-control me-2" placeholder="Write filename here..." />
+                        <button id="uploadButton" class="btn btn-info btn-sm">Upload</button>
+                        <button id="downloadButton" class="btn btn-success btn-sm ms-2">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-container">
+            <!-- Cards will be dynamically generated here for mobile view -->
+        </div>
+
+        <div class="table-container">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="text-center">Delete</th>
+                        <th class="text-center">Phone</th>
+                        <th class="text-center">Link</th>
+                        <th class="text-center">Check</th>
+                        <th class="text-center">Category</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".csv" hidden>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function adjustTableContainerHeight() {
+                const stickyDiv = document.querySelector('.sticky-div');
+                const stickyDivHeight = stickyDiv.offsetHeight;
+                const tableContainer = document.querySelector('.table-container');
+                const newHeight = `calc(100vh - ${stickyDivHeight}px - 50px)`;
+                tableContainer.style.height = newHeight;
+            }
+
+            adjustTableContainerHeight();
+
+            window.addEventListener('resize', adjustTableContainerHeight);
+
+            const fileInput = document.getElementById('fileInput');
+            const tableBody = document.querySelector('.table-container tbody');
+            const downloadButton = document.getElementById('downloadButton');
+
+            let tableData = [];
+
+            function refreshTable() {
+                if (!tableBody) {
+                    console.error('Table body is not defined. Check the HTML structure.');
+                    return;
+                }
+
+                tableBody.innerHTML = '';
+                document.querySelector('.card-container').innerHTML = ''; // Clear existing cards
+
+                tableData.forEach((data, index) => {
+                    // Create table rows
+                    const row = document.createElement('tr');
+
+                    const removeCell = document.createElement('td');
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'btn btn-danger btn-sm';
+                    removeButton.textContent = "Remove";
+                    removeButton.addEventListener('click', function () {
+                        if (confirm("Are you sure you want to remove this option?")) {
+                            removeRow(index);
+                        }
+                    });
+                    removeCell.appendChild(removeButton);
+
+                    const phoneCell = document.createElement('td');
+                    const phoneButton = document.createElement('button');
+                    phoneButton.textContent = data.phone;
+                    phoneButton.className = 'btn btn-success btn-sm';
+                    phoneButton.addEventListener('click', function () {
+                        copyToClipboard(data.phone);
+                    });
+                    phoneCell.appendChild(phoneButton);
+
+                    const linkCell = document.createElement('td');
+                    const linkButton = document.createElement('button');
+                    linkButton.textContent = data.url;
+                    linkButton.className = 'btn btn-info btn-sm';
+                    linkButton.addEventListener('click', function () {
+                        openInstagramProfile(data.url);
+                    });
+                    linkCell.appendChild(linkButton);
+
+                    const checkCell = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = data.checked;
+                    checkbox.className = 'custom-checkbox';
+                    checkbox.addEventListener('change', function () {
+                        data.checked = checkbox.checked;
+                        updateLocalStorage();
+                    });
+                    checkCell.appendChild(checkbox);
+
+                    const selectCell = document.createElement('td');
+                    const selectElement = document.createElement('select');
+                    selectElement.className = 'form-select form-select-sm';
+
+                    const optionsString = localStorage.getItem('options');
+                    const options = optionsString ? JSON.parse(optionsString) : [];
+
+                    options.forEach(option => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.text = option;
+                        selectElement.appendChild(optionElement);
+                    });
+
+                    selectElement.value = data.category || "";
+                    selectElement.addEventListener('change', function () {
+                        const selectedOption = selectElement.value;
+                        tableData[index].category = selectedOption;
+                        updateLocalStorage();
+                    });
+
+                    selectCell.appendChild(selectElement);
+                    row.appendChild(removeCell);
+                    row.appendChild(phoneCell);
+                    row.appendChild(linkCell);
+                    row.appendChild(checkCell);
+                    row.appendChild(selectCell);
+                    tableBody.appendChild(row);
+
+                    // Create mobile cards
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${data.phone}</h5>
+                            <p class="card-text">
+                                <button class="btn btn-success btn-sm" onclick="copyToClipboard('${data.phone}')">Copy Phone</button>
+                                <button class="btn btn-info btn-sm" onclick="openInstagramProfile('${data.url}')">Open Link</button>
+                            </p>
+                            <div>
+                                <input type="checkbox" ${data.checked ? 'checked' : ''} onchange="toggleChecked(${index}, this.checked)"> Checked
+                                <select onchange="updateCategory(${index}, this.value)" class="form-select form-select-sm" style="display:inline-block; width:auto;">
+                                    ${options.map(option => `<option value="${option}" ${data.category === option ? 'selected' : ''}>${option}</option>`).join('')}
+                                </select>
+                                <button class="btn btn-danger btn-sm" onclick="removeRow(${index})">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                    document.querySelector('.card-container').appendChild(card);
+                });
+            }
+
+            window.toggleChecked = function(index, value) {
+                tableData[index].checked = value;
+                updateLocalStorage();
+            };
+
+            window.updateCategory = function(index, value) {
+                tableData[index].category = value;
+                updateLocalStorage();
+            };
+
+            fileInput.addEventListener('change', function () {
+                const selectedFile = fileInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const lines = event.target.result.split('\n');
+                    tableData = lines.map(line => {
+                        const [phone, url] = line.split(',');
+                        return { phone, url, checked: false, category: '' };
+                    });
+                    updateLocalStorage();
+                    refreshTable();
+                };
+
+                reader.readAsText(selectedFile);
+            });
+
+            document.getElementById('uploadButton').addEventListener('click', function (event) {
+                event.preventDefault();
+                fileInput.click();
+            });
+
+            document.getElementById('addButton').addEventListener("click", function () {
+                const inputValue = document.getElementById('addInput').value;
+                const optionsString = localStorage.getItem('options');
+                let options = optionsString ? JSON.parse(optionsString) : [];
+
+                if (inputValue && !options.includes(inputValue)) {
+                    options.push(inputValue);
+                    localStorage.setItem('options', JSON.stringify(options));
+                    refreshTable();
+                    alert("Option added");
+                } else {
+                    alert("Please enter a valid and unique option.");
+                }
+            });
+
+            document.getElementById('removeButton').addEventListener("click", function () {
+                const inputValue = document.getElementById('addInput').value;
+                const optionsString = localStorage.getItem('options');
+                let options = optionsString ? JSON.parse(optionsString) : [];
+
+                if (inputValue && options.includes(inputValue)) {
+                    const indexToRemove = options.indexOf(inputValue);
+                    options.splice(indexToRemove, 1);
+                    localStorage.setItem('options', JSON.stringify(options));
+                    refreshTable();
+                    alert("Option removed");
+                } else {
+                    alert("Please enter a valid and unique option.");
+                }
+            });
+
+            window.removeRow = function (index) {
+                tableData.splice(index, 1);
+                refreshTable();
+                updateLocalStorage();
+            };
+
+            function loadFromLocalStorage() {
+                const savedContent = localStorage.getItem('tableData');
+                if (savedContent) {
+                    tableData = JSON.parse(savedContent);
+                    refreshTable();
+                }
+            }
+
+            function updateLocalStorage() {
+                localStorage.setItem('tableData', JSON.stringify(tableData));
+            }
+
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Phone number copied to clipboard!');
+                });
+            }
+
+            function openInstagramProfile(url) {
+                window.open(url, '_blank');
+            }
+
+            downloadButton.addEventListener('click', function () {
+                const fileName = document.getElementById('fileName').value || 'download.csv';
+                const csvContent = tableData.map(data => `${data.phone},${data.url}`).join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('href', url);
+                a.setAttribute('download', fileName);
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+
+            loadFromLocalStorage();
+        });
+    </script>
+
+</body>
+
+</html>

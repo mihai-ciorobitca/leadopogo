@@ -6,6 +6,9 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
+const csv = require('csv-parser');
+const { Parser } = require('json2csv');
+const { Readable } = require('stream');
 
 require('dotenv').config();
 
@@ -35,10 +38,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.get('/', (req, res) => {
     if (req.session.username) {
-        res.redirect('/home');
-    } else {
-        res.redirect('/login');
-    }
+        return res.redirect('/home');
+    } 
+    return res.redirect('/login');
 });
 
 app.get('/home', async (req, res) => {
@@ -49,15 +51,14 @@ app.get('/home', async (req, res) => {
             .select('code, credits')
             .eq('username', req.session.username)
             .single()
-        res.render('home', {
+        return res.render('home', {
             username: username,
             credits: user.credits,
             code: user.code,
             is_admin: req.session.is_admin
         });
-    } else {
-        res.redirect('/login');
-    }
+    } 
+    return res.redirect('/login');
 });
 
 app.post('/home/create-task', async (req, res) => {
@@ -129,11 +130,63 @@ app.get('/home/tasks', async (req, res) => {
             res.status(500).send('Internal Server Error');
         }
     }
-    res.redirect("/login");
+    return res.redirect("/login");
+});
+
+app.get("/home/checker", async (req, res) => {
+    if (req.session.username) {
+        return res.render("checker");
+    }
+    return res.redirect("/login");
+});
+
+app.get("/home/filter", async (req, res) => {
+    if (req.session.username) {
+        return res.render("filter");
+    }
+    return res.redirect("/login");
+});
+
+app.post('/filter', async (req, res) => {
+    try {
+        const googleSheetsUrl = req.body.google_sheets_url;
+        const categories = req.body.categories.split('\n').map(cat => cat.trim());
+        const numbers = req.body.numbers.split('\n').map(num => num.trim());
+
+        const response = await axios.get(googleSheetsUrl);
+        const $ = cheerio.load(response.data);
+        let filename = $('title').text();
+        filename = filename.split('-').slice(0, -1).join('-').trim();
+
+        const spreadsheetId = getSpreadsheetId(googleSheetsUrl);
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv`;
+
+        const csvResponse = await axios.get(csvUrl);
+        const csvData = csvResponse.data;
+
+        const parsedData = [];
+        Readable.from(csvData)
+            .pipe(csv())
+            .on('data', (row) => {
+                parsedData.push(row);
+            })
+            .on('end', () => {
+                const filteredData = removingUser(parsedData, numbers, categories);
+                const json2csvParser = new Parser();
+                const csvOutput = json2csvParser.parse(filteredData);
+
+                res.header('Content-Type', 'text/csv');
+                res.attachment(`${filename}.csv`);
+                res.send(csvOutput);
+            });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('An error occurred while processing your request.');
+    }
 });
 
 app.get('/login', (req, res) => {
-    res.render('login');
+    return res.render('login');
 });
 
 app.post('/login', async (req, res) => {
@@ -158,13 +211,12 @@ app.post('/login', async (req, res) => {
         req.session.credits = user.credits;
         req.session.code = user.code;
         return res.json({ result: 'home' });
-    } else {
-        return res.json({ result: 'error' });
     }
+    return res.json({ result: 'error' });
 });
 
 app.get('/recover', (req, res) => {
-    res.render('recover', { message: null });
+    return res.render('recover', { message: null });
 });
 
 app.post('/recover', async (req, res) => {
@@ -205,9 +257,8 @@ app.post('/recover', async (req, res) => {
                 return res.render('recover', { message: 'Failed to update password. Please try again.' });
             }
             return res.redirect("/login");
-        } else {
-            return res.render('recover', { message: 'Invalid OTP. Please try again.' });
         }
+        return res.render('recover', { message: 'Invalid OTP. Please try again.' });
     } catch (error) {
         console.error('Error during OTP verification:', error);
         return res.status(500).render('recover', { message: 'Internal Server Error' });
@@ -215,7 +266,7 @@ app.post('/recover', async (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.render('register');
+    return res.render('register');
 });
 
 app.post('/register', async (req, res) => {
@@ -264,7 +315,7 @@ app.get('/admin', async (req, res) => {
             res.status(500).send('Internal Server Error');
         }
     }
-    res.redirect('/login');
+    return res.redirect('/login');
 });
 
 app.post('/admin/buy-credits', async (req, res) => {
@@ -284,12 +335,11 @@ app.post('/admin/buy-credits', async (req, res) => {
                 .eq('username', username);
             if (updateError) throw updateError;
             res.redirect('/admin');
-        } else {
-            res.send('User not found');
-        }
+        } 
+        return res.send('User not found');
     } catch (error) {
         console.error('Error buying credits:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 });
 
@@ -301,10 +351,10 @@ app.post('/admin/clear-credits', async (req, res) => {
             .update({ credits: 0 })
             .eq('username', username);
         if (error) throw error;
-        res.redirect('/admin');
+        return res.redirect('/admin');
     } catch (error) {
         console.error('Error clearing credits:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 });
 
@@ -316,10 +366,10 @@ app.post('/admin/update-status', async (req, res) => {
             .update({ status })
             .eq('username', username);
         if (error) throw error;
-        res.redirect('/admin');
+        return res.redirect('/admin');
     } catch (error) {
         console.error('Error updating status:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 });
 
@@ -331,10 +381,10 @@ app.post('/admin/delete-account', async (req, res) => {
             .delete()
             .eq('username', username);
         if (error) throw error;
-        res.redirect('/admin');
+        return res.redirect('/admin');
     } catch (error) {
         console.error('Error deleting account:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 });
 
@@ -350,10 +400,10 @@ app.post('/admin/home', async (req, res) => {
         req.session.username = username;
         req.session.credits = user.credits;
         req.session.code = user.code;
-        res.redirect('/home');
+        return res.redirect('/home');
     } catch (error) {
         console.error('Error during admin home redirection:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 });
 
@@ -363,13 +413,13 @@ app.post('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Failed to log out');
         }
-        res.redirect('/login');
+        return res.redirect('/login');
     });
 });
 
 app.use((err, req, res, next) => {
     console.error('Error occurred:', err);
-    res.status(500).send('Internal Server Error');
+    return res.status(500).send('Internal Server Error');
 });
 
 const scrapeData = async () => {
@@ -438,6 +488,44 @@ const postTask = async (source_type, source, max_leads) => {
         throw error;
     }
 };
+
+function getSpreadsheetId(googleSheetsUrl) {
+    const pattern = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
+    const match = googleSheetsUrl.match(pattern);
+    return match ? match[1] : null;
+}
+
+function removingData(data, numbers, category) {
+    const phoneColumn = 'phoneColumn';
+    const categoryColumn = 'categoryColumn';
+    const initialCount = data.length;
+
+    data = data.filter(row => row[phoneColumn] !== undefined && row[phoneColumn] !== null);
+
+    data.forEach(row => {
+        if (row[phoneColumn]) {
+            row[phoneColumn] = String(row[phoneColumn]).replace("+", "");
+            row[phoneColumn] = row[phoneColumn].endsWith('.0') ? row[phoneColumn].slice(0, -2) : row[phoneColumn];
+        }
+    });
+
+    data = data.filter(row => {
+        const startsWithCodes = numbers.some(code => row[phoneColumn].startsWith(code));
+        return !startsWithCodes;
+    });
+
+    data.forEach(row => {
+        if (row[categoryColumn]) {
+            row[categoryColumn] = row[categoryColumn].toLowerCase();
+        }
+    });
+
+    data = data.filter(row => !category.includes(row[categoryColumn]));
+
+    const totalRemovedCount = initialCount - data.length;
+    console.log('Total removed count:', totalRemovedCount);
+    return data;
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
