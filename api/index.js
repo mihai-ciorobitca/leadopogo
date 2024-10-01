@@ -171,7 +171,7 @@ app.post('/filter', async (req, res) => {
                 parsedData.push(row);
             })
             .on('end', () => {
-                const filteredData = removingUser(parsedData, numbers, categories);
+                const filteredData = removingData(parsedData, numbers, categories);
                 const json2csvParser = new Parser();
                 const csvOutput = json2csvParser.parse(filteredData);
 
