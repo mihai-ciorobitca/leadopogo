@@ -18,26 +18,36 @@
             height: 100vh;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("form").submit(function(e) {
+                e.preventDefault();
+                var data = $(this).serialize();
+                $.post("/register", data, function(result) {
+                    if (result.result === "exist-user") {
+                        alert("Username already exists");
+                    } else if (result.result === "error") {
+                        alert("Unexpected error");
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 
 <body class="d-flex justify-content-center align-items-center">
     <div class="col-lg-5 col-md-6 col-10 container mt-5">
-        <form method="POST" action="/register" class="p-4 bg-white rounded shadow-lg mx-auto"
-            onsubmit="return checkPasswordMatch()">
+        <form method="POST" action="/register" class="p-4 bg-white rounded shadow-lg mx-auto" onsubmit="return checkPasswordMatch()">
             <h2 class="text-center mb-4">Registration Form</h2>
             <div class="mb-3">
-                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username"
-                    pattern="^[a-zA-Z0-9_]{5,20}$" maxlength="20"
-                    title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores."
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" pattern="^[a-zA-Z0-9_]{5,20}$" maxlength="20" title="Please enter a username between 5 and 20 characters, containing only letters, numbers, and underscores."
                     required>
             </div>
             <div class="mb-3">
                 <div class="input-group">
-                    <input type="password" id="password" name="password" class="form-control"
-                        placeholder="Enter your password" pattern="^.{8,}$" maxlength="64"
-                        title="Password must contain at least 8 characters" required>
-                    <button type="button" class="btn btn-outline-secondary"
-                        onclick="togglePasswordVisibility('password')">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" pattern="^.{8,}$" maxlength="64" title="Password must contain at least 8 characters" required>
+                    <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('password')">
                         <i id="eye-password" class="fa fa-eye-slash" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -50,7 +60,6 @@
     </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function togglePasswordVisibility(fieldId) {
             const passwordInput = document.getElementById(fieldId);
