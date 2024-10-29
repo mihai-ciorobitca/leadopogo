@@ -39,11 +39,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.get('/', (req, res) => {
     if (req.session.username) {
         return res.redirect('/home');
-    } 
+    }
     return res.redirect('/login');
 });
 
-app.get('/home', async (req, res) => {
+app.get('/home', async(req, res) => {
     if (req.session.username) {
         const username = req.session.username;
         const { data: user, error: fetchError } = await supabase_client
@@ -57,11 +57,11 @@ app.get('/home', async (req, res) => {
             code: user.code,
             is_admin: req.session.is_admin
         });
-    } 
+    }
     return res.redirect('/login');
 });
 
-app.post('/home/create-task', async (req, res) => {
+app.post('/home/create-task', async(req, res) => {
     try {
         const taskName = req.body['task-name'];
         const taskSource = req.body['task-source'];
@@ -115,7 +115,7 @@ app.post('/home/create-task', async (req, res) => {
     }
 });
 
-app.get('/home/tasks', async (req, res) => {
+app.get('/home/tasks', async(req, res) => {
     if (req.session.username) {
         try {
             const username = req.session.username;
@@ -133,21 +133,21 @@ app.get('/home/tasks', async (req, res) => {
     return res.redirect("/login");
 });
 
-app.get("/home/checker", async (req, res) => {
+app.get("/home/checker", async(req, res) => {
     if (req.session.username) {
         return res.render("checker");
     }
     return res.redirect("/login");
 });
 
-app.get("/home/filter", async (req, res) => {
+app.get("/home/filter", async(req, res) => {
     if (req.session.username) {
         return res.render("filter");
     }
     return res.redirect("/login");
 });
 
-app.post('/filter', async (req, res) => {
+app.post('/filter', async(req, res) => {
     try {
         const googleSheetsUrl = req.body.google_sheets_url;
         const categories = req.body.categories.split('\n').map(cat => cat.trim());
@@ -163,6 +163,7 @@ app.post('/filter', async (req, res) => {
 
         const csvResponse = await axios.get(csvUrl);
         const csvData = csvResponse.data;
+        console.log(csvData);
 
         const parsedData = [];
         Readable.from(csvData)
@@ -189,7 +190,7 @@ app.get('/login', (req, res) => {
     return res.render('login');
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', async(req, res) => {
     const { username, password } = req.body;
     if (username === USERNAME_ADMIN && password === ADMIN_PASSWORD) {
         req.session.is_admin = true;
@@ -219,7 +220,7 @@ app.get('/recover', (req, res) => {
     return res.render('recover', { message: null });
 });
 
-app.post('/recover', async (req, res) => {
+app.post('/recover', async(req, res) => {
     const { username, secret, new_password } = req.body;
     try {
         console.log('Recover request body:', req.body);
@@ -269,8 +270,8 @@ app.get('/register', (req, res) => {
     return res.render('register');
 });
 
-app.post('/register', async (req, res) => {
-    const { username, password, email } = req.body;
+app.post('/register', async(req, res) => {
+    const { username, password } = req.body;
     try {
         const { count: userCount, error: fetchUserError } = await supabase_client
             .from('users')
@@ -298,7 +299,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.get('/admin', async (req, res) => {
+app.get('/admin', async(req, res) => {
     if (req.session.is_admin) {
         try {
             const { data: users, error: fetchError } = await supabase_client
@@ -318,7 +319,7 @@ app.get('/admin', async (req, res) => {
     return res.redirect('/login');
 });
 
-app.post('/admin/buy-credits', async (req, res) => {
+app.post('/admin/buy-credits', async(req, res) => {
     const { username, credits } = req.body;
     try {
         const { data: user, error } = await supabase_client
@@ -335,7 +336,7 @@ app.post('/admin/buy-credits', async (req, res) => {
                 .eq('username', username);
             if (updateError) throw updateError;
             res.redirect('/admin');
-        } 
+        }
         return res.send('User not found');
     } catch (error) {
         console.error('Error buying credits:', error);
@@ -343,7 +344,7 @@ app.post('/admin/buy-credits', async (req, res) => {
     }
 });
 
-app.post('/admin/clear-credits', async (req, res) => {
+app.post('/admin/clear-credits', async(req, res) => {
     const { username } = req.body;
     try {
         const { error } = await supabase_client
@@ -358,7 +359,7 @@ app.post('/admin/clear-credits', async (req, res) => {
     }
 });
 
-app.post('/admin/update-status', async (req, res) => {
+app.post('/admin/update-status', async(req, res) => {
     const { username, status } = req.body;
     try {
         const { error } = await supabase_client
@@ -373,7 +374,7 @@ app.post('/admin/update-status', async (req, res) => {
     }
 });
 
-app.post('/admin/delete-account', async (req, res) => {
+app.post('/admin/delete-account', async(req, res) => {
     const { username } = req.body;
     try {
         const { error } = await supabase_client
@@ -388,7 +389,7 @@ app.post('/admin/delete-account', async (req, res) => {
     }
 });
 
-app.post('/admin/home', async (req, res) => {
+app.post('/admin/home', async(req, res) => {
     const { username } = req.body;
     try {
         const { data: user, error } = await supabase_client
@@ -422,7 +423,7 @@ app.use((err, req, res, next) => {
     return res.status(500).send('Internal Server Error');
 });
 
-const scrapeData = async () => {
+const scrapeData = async() => {
     try {
         const response = await axios.get(API_URL, {
             headers: {
@@ -458,7 +459,7 @@ const scrapeData = async () => {
     }
 };
 
-const postTask = async (source_type, source, max_leads) => {
+const postTask = async(source_type, source, max_leads) => {
     try {
         const getResponse = await axios.get(API_URL, {
             headers: {
