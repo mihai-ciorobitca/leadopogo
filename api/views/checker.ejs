@@ -350,8 +350,10 @@
 
             downloadButton.addEventListener('click', function () {
                 const fileName = document.getElementById('fileName').value || 'download.csv';
-                const csvContent = tableData.map(data => `${data.phone},${data.url}`).join('\n');
-
+                const csvContent = tableData
+                    .filter(data => data.checked)
+                    .map(data => `${data.phone},${data.url}`)
+                    .join('\n');
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
