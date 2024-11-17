@@ -291,7 +291,10 @@ app.post('/register', async(req, res) => {
                 code: secret.base32,
                 status: 'unconfirmed'
             }]);
-        if (insertError) throw insertError;
+        if (insertError) {
+            return res.json({ result: 'unexpected-error' });
+        }
+        return res.json({ result: 'user-registered' });
     } catch (error) {
         console.error('Error during registration:', error);
         res.status(500).send('Internal Server Error');
