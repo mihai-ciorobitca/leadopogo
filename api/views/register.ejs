@@ -29,8 +29,10 @@
                         alert("Username already exists");
                     } else if (result.result === "error") {
                         alert("Unexpected error");
-                    } else {
-                        window.location.href = "/login";
+                    } else if (result.result === "unexpected-error") {
+                        alert("unexpected-error");
+                    } esle if (result.result === "user-registered") {
+                        window.location.href="/login";
                     }
                 });
             });
