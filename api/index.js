@@ -292,7 +292,6 @@ app.post('/register', async(req, res) => {
                 status: 'unconfirmed'
             }]);
         if (insertError) throw insertError;
-        return res.redirect("/login")
     } catch (error) {
         console.error('Error during registration:', error);
         res.status(500).send('Internal Server Error');
