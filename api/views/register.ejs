@@ -29,6 +29,8 @@
                         alert("Username already exists");
                     } else if (result.result === "error") {
                         alert("Unexpected error");
+                    } else {
+                        windows.location.href = "/login";
                     }
                 });
             });
