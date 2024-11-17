@@ -208,7 +208,7 @@ app.post('/login', async(req, res) => {
         .single();
     if (error) throw error;
     if (user && await bcrypt.compare(password, user.password)) {
-        req.session.username = username;
+        req.session.username = username.toLowerCase();
         req.session.credits = user.credits;
         req.session.code = user.code;
         return res.json({ result: 'home' });
