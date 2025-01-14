@@ -29,11 +29,44 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/create-task', async (req, res) => {
-    // ...existing code...
+    if (req.session.username) {
+        const { 'task-name': taskName, 'task-source': taskSource, 'task-emails': taskEmails, 'task-type': taskType } = req.body;
+
+        const { data: task, error } = await supabase_client
+            .from('tasks')
+            .insert([
+                {
+                    username: req.session.username,
+                    name: taskName,
+                    source: taskSource,
+                    max_emails: taskEmails,
+                    type: taskType
+                }
+            ]);
+
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+
+        return res.redirect('/home/tasks');
+    }
+    return res.redirect('/login');
 });
 
 router.get('/tasks', async (req, res) => {
-    // ...existing code...
+    if (req.session.username) {
+        const { data: tasks, error } = await supabase_client
+            .from('tasks')
+            .select('*')
+            .eq('username', req.session.username);
+
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+
+        return res.render('tasks', { tasks: tasks });
+    }
+    return res.redirect('/login');
 });
 
 router.get('/checker', async (req, res) => {

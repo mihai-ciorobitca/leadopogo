@@ -7,60 +7,14 @@
     <title>
         <% if (session.is_superadmin) { %>
             Super Admin Panel
-        <% } else { %>
-            Admin Panel
-        <% } %>
+            <% } else { %>
+                Admin Panel
+                <% } %>
     </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" type="image/png" href="/static/favicon.ico">
     <style>
-        /* Hide table on small screens */
-        @media (max-width: 767.98px) {
-            .table-container {
-                display: none;
-            }
-        }
-
-        /* Show cards on small screens */
-        @media (max-width: 767.98px) {
-            .card-container {
-                display: flex;
-                flex-direction: column;
-                overflow-y: auto; /* Enable vertical scrolling */
-                max-height: calc(100vh - 100px); /* Adjust max height based on your header/footer */
-                padding: 10px; /* Optional padding for aesthetic */
-            }
-
-            .card {
-                margin-bottom: 15px;
-            }
-
-            .clear, .delete, .open {
-                width: 100%;
-            }
-        }
-
-        /* Show table on larger screens */
-        @media (min-width: 768px) {
-            .card-container {
-                display: none;
-            }
-
-            .table-container {
-                display: block;
-                overflow-y: auto; /* Enable vertical scrolling */
-                max-height: calc(100vh - 100px); /* Adjust max height based on your header/footer */
-            }
-        }
-
-        /* Sticky search bar style */
-        .sticky-search {
-            background-color: white; /* Background color for visibility */
-            padding: 10px; /* Optional padding */
-            z-index: 1020; /* Bootstrap's sticky element z-index */
-        }
-
         body {
             background-image: url(/static/background.png);
             background-size: cover;
@@ -83,14 +37,14 @@
 
     <div class="container-fluid flex-grow-1">
         <% if (session.admin) { %>
-            <div class="sticky-search sticky-top mb-3 mt-3">
+            <div class="sticky-top mb-3 mt-3 bg-white p-3">
                 <input class="form-control" type="text" placeholder="Search" id="search-input">
             </div>
 
             <!-- Card Layout for Mobile -->
-            <div class="card-container">
-                <% users.forEach(user => { %>
-                    <div class="card">
+            <div class="d-md-none">
+                <% users.forEach(user=> { %>
+                    <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title text-center">
                                 <%= user.username %>
@@ -108,25 +62,26 @@
                             </form>
                             <form action="/admin/clear-credits" method="POST" class="mb-2">
                                 <input type="hidden" name="username" value="<%= user.username %>" />
-                                <button type="submit" class="btn btn-warning clear">Clear</button>
+                                <button type="submit" class="btn btn-warning w-100">Clear</button>
                             </form>
                             <form action="/admin/delete-account" method="POST"
                                 onsubmit="return confirmDeleteAccount(event);" class="mb-2">
                                 <input type="hidden" name="username" value="<%= user.username %>" />
-                                <button type="submit" class="btn btn-danger delete" <% if (!session.is_superadmin) { %>disabled
+                                <button type="submit" class="btn btn-danger w-100" <% if (!session.is_superadmin) {
+                                    %>disabled
                                     style="background-color: #cccccc;"<% } %>>Delete</button>
                             </form>
                             <form action="/admin/home" method="POST">
                                 <input type="hidden" name="username" value="<%= user.username %>" />
-                                <button type="submit" class="btn btn-info open">Open</button>
+                                <button type="submit" class="btn btn-info w-100">Open</button>
                             </form>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
 
             <!-- Table Layout for Larger Screens -->
-            <div class="table-responsive table-container">
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-bordered">
                     <thead class="thead-light">
                         <tr>
@@ -139,7 +94,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% users.forEach(user => { %>
+                        <% users.forEach(user=> { %>
                             <tr>
                                 <td class="text-center">
                                     <%= user.username %>
@@ -149,10 +104,13 @@
                                 </td>
                                 <td class="text-center">
                                     <form action="/admin/buy-credits" method="POST" class="d-inline-flex">
-                                        <input name="credits" type="number" min="1" placeholder="Nr. credits" required
-                                            class="form-control" style="width: auto; display: inline-block;" />
-                                        <input type="hidden" name="username" value="<%= user.username %>" />
-                                        <button type="submit" class="btn btn-primary">Buy</button>
+                                        <div class="input-group">
+                                            <input name="credits" type="number" min="1" placeholder="Nr. credits"
+                                                required class="form-control" style="width: auto;" />
+                                            <input type="hidden" name="username" value="<%= user.username %>" />
+                                            <input type="hidden" name="currentCredits" value="<%= user.credits %>" />
+                                            <button type="submit" class="btn btn-primary">Buy</button>
+                                        </div>
                                     </form>
                                 </td>
                                 <td class="text-center">
@@ -176,11 +134,11 @@
                                     </form>
                                 </td>
                             </tr>
-                        <% }); %>
+                            <% }); %>
                     </tbody>
                 </table>
             </div>
-        <% } %>
+            <% } %>
     </div>
 
     <script>
