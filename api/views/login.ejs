@@ -12,31 +12,6 @@
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1ZlG/nyb4I/KC0zg5owXa7caXg7FqC"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script>
-        $(document).ready(function () {
-            $("form").submit(function (e) {
-                e.preventDefault();
-                var data = $(this).serialize();
-                $.post("/login", data, function (result) {
-                    if (result.result === "admin") {
-                        window.location.href = "/admin";
-                    }
-                    else if (result.result === "home") {
-                        window.location.href = "/home";
-                    }
-                    else if (result.result === "unconfirmed") {
-                        alert("Ask admin to confirm account");
-                    }
-                    else if (result.result === "error") {
-                        alert("Invalid username or password");
-                    }
-                    else {
-                        alert("Unexpected error");
-                    }
-                });
-            });
-        });
-    </script>
     <style>
         body {
             background-image: url(/static/background.png);
@@ -53,6 +28,11 @@
     <div class="col-lg-5 col-md-6 col-10 container mt-5">
         <form method="POST" action="/login" class="p-4 bg-white rounded shadow-lg mx-auto">
             <h2 class="mb-4 text-center">Login Form</h2>
+            <% if (typeof message !== 'undefined') { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= message %>
+                </div>
+            <% } %>
             <div class="mb-3">
                 <input type="text" name="username" id="username" placeholder="Enter your username" autocomplete="on"
                     maxlength="20" class="form-control" required>
