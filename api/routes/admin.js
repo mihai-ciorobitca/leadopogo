@@ -31,23 +31,72 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/buy-credits', async (req, res) => {
-    // ...existing code...
+    const { credits, currentCredits, username } = req.body;
+
+    try {
+        const { data, error } = await supabase_client
+            .from('users')
+            .update({ credits: currentCredits + parseInt(credits) })
+            .eq('username', username);
+
+        if (error) {
+            console.error('Error updating credits:', error);
+            return res.status(500).send('Error updating credits');
+        }
+
+        return res.redirect('/admin');
+    } catch (error) {
+        console.error('Error processing buy credits request:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 router.post('/clear-credits', async (req, res) => {
-    // ...existing code...
-});
+    const { username } = req.body;
 
-router.post('/update-status', async (req, res) => {
-    // ...existing code...
+    try {
+        const { data, error } = await supabase_client
+            .from('users')
+            .update({ credits: 0 })
+            .eq('username', username);
+
+        if (error) {
+            console.error('Error clearing credits:', error);
+            return res.status(500).send('Error clearing credits');
+        }
+
+        return res.redirect('/admin');
+    } catch (error) {
+        console.error('Error processing clear credits request:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 router.post('/delete-account', async (req, res) => {
-    // ...existing code...
+    const { username } = req.body;
+
+    try {
+        const { data, error } = await supabase_client
+            .from('users')
+            .delete()
+            .eq('username', username);
+
+        if (error) {
+            console.error('Error deleting account:', error);
+            return res.status(500).send('Error deleting account');
+        }
+
+        return res.redirect('/admin');
+    } catch (error) {
+        console.error('Error processing delete account request:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
-router.post('/home', async (req, res) => {
-    // ...existing code...
+router.post('/home', (req, res) => {
+    const { username } = req.body;
+    req.session.username = username;
+    res.redirect('/home');
 });
 
 module.exports = router;
