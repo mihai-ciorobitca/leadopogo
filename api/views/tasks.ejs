@@ -8,53 +8,13 @@
     <link rel="icon" type="image/png" href="/static/favicon.ico">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Hide table on small screens */
-        @media (max-width: 767.98px) {
-            .table-container {
-                display: none;
-            }
-
-            .card-container {
-                display: flex;
-                flex-direction: column;
-                padding: 15px;
-            }
-
-            .card {
-                margin-bottom: 15px;
-            }
-        }
-
-        /* Show table on larger screens */
-        @media (min-width: 768px) {
-            .card-container {
-                display: none;
-            }
-
-            .table-container {
-                display: block;
-            }
-
-            .card-body .btn {
-                width: 100%;
-            }
-
-            .open {
-                width: 100%;
-            }
-
-        }
-
         /* Sticky search bar */
         .sticky-search {
             position: sticky;
             top: 0;
             background-color: white;
-            /* Background color for visibility */
             z-index: 1020;
-            /* Bootstrap's sticky element z-index */
             padding: 10px;
-            /* Optional padding */
         }
 
         body {
@@ -64,10 +24,6 @@
             background-repeat: no-repeat;
             background-color: #f1f1f1;
             height: 100vh;
-        }
-
-        .thead-light-custom {
-            background-color: white;
         }
     </style>
 </head>
@@ -80,9 +36,9 @@
         </div>
 
         <!-- Table Layout for Larger Screens -->
-        <div class="table-responsive table-container">
+        <div class="table-responsive d-none d-md-block">
             <table class="table table-bordered">
-                <thead class="thead-light-custom">
+                <thead class="thead-light">
                     <tr>
                         <th class="text-center">Name</th>
                         <th class="text-center">Type</th>
@@ -90,7 +46,7 @@
                         <th class="text-center">Open</th>
                     </tr>
                 </thead>
-                <tbody class="thead-light-custom">
+                <tbody>
                     <% tasks.forEach(task=> { %>
                         <tr>
                             <td class="text-center">
@@ -105,12 +61,12 @@
                             </td>
                             <td class="text-center">
                                 <label class="label-element">
-                                    <%= task.task_emails %>
+                                    <%= task.max_emails %>
                                 </label>
                             </td>
                             <td class="text-center">
-                                <form action="" method="POST">
-                                    <input type="hidden" name="username" value="<%= task.task_name %>" />
+                                <form action="/home/tasks/<%= task.id %>" method="POST">
+                                    <input type="hidden" name="task_id" value="<%= task.task_id %>"/>
                                     <button type="submit" class="btn btn-info">Open</button>
                                 </form>
                             </td>
@@ -121,20 +77,20 @@
         </div>
 
         <!-- Card Layout for Mobile -->
-        <div class="card-container flex-grow-1">
+        <div class="d-md-none">
             <% tasks.forEach(task=> { %>
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">
                             <%= task.task_name %>
                         </h5>
                         <p class="card-text">Type: <%= task.task_type %>
                         </p>
-                        <p class="card-text">Emails: <%= task.task_emails %>
+                        <p class="card-text">Emails: <%= task.max_emails %>
                         </p>
-                        <form action="/home/tasks/task-status" method="POST">
-                            <input type="hidden" name="username" value="<%= task.task_name %>" />
-                            <button type="submit" class="btn btn-info open">Open</button>
+                        <form action="/home/tasks/<%= task.id %>" method="POST">
+                            <input type="hidden" name="task_id" value="<%= task.task_id %>"/>
+                            <button type="submit" class="btn btn-info">Open</button>
                         </form>
                     </div>
                 </div>

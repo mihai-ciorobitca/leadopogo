@@ -7,7 +7,8 @@
     <title>Home</title>
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
     <style>
         body {
             background-image: url(/static/background.png);
@@ -47,7 +48,7 @@
         <h1>Welcome, <%= username %>
         </h1>
         <p>You have <%= credits %> credits.</p>
-        
+
         <div class="mb-3">
             <input type="hidden" value="<%= recovery_code %>" id="code-value">
             <button type="button" class="btn btn-outline-secondary" onclick="copyCode()">Copy Code</button>
@@ -63,8 +64,9 @@
             </div>
             <div class="mb-3">
                 <input type="number" id="max-emails" name="task-emails" class="form-control" min="500"
-                    max="<%= credits %>" placeholder="How many data to collect" required>
+                    placeholder="How many data to collect" required>
             </div>
+            <input type="hidden" name="current-credits" value="<%= credits %>">
             <div class="mb-3">
                 <select id="scrape-type" name="task-type" class="form-select" required>
                     <option value="" selected>Collect type</option>
@@ -74,12 +76,16 @@
                 </select>
             </div>
             <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-info text-white me-2" onclick="window.location.href='/home/checker'"><i class="bi bi-eye"></i> Checker</button>
-                <button type="button" class="btn btn-success" onclick="window.location.href='/home/filter'"><i class="bi bi-filter"></i> Filter</button>
+                <button type="button" class="btn btn-info text-white me-2"
+                    onclick="window.location.href='/home/checker'" disabled><i class="bi bi-eye"></i> Checker</button>
+                <button type="button" class="btn btn-success" onclick="window.location.href='/home/filter'" disabled><i
+                        class="bi bi-filter"></i> Filter</button>
             </div>
             <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary me-2" <%=admin ? '' : 'disabled' %>><i class="bi bi-plus-circle"></i> Create Task</button>
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='/home/tasks'"><i class="bi bi-list"></i> Tasks
+                <button type="submit" class="btn btn-primary me-2 create-task-btn" <%=admin ? '' : 'disabled' %>><i
+                        class="bi bi-plus-circle"></i> Create Task</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/home/tasks'"><i
+                        class="bi bi-list"></i> Tasks
                     List</button>
             </div>
         </form>
@@ -87,6 +93,18 @@
             <button type="submit" class="btn btn-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
         </form>
         <div class="error" id="error-message"></div>
+        <script>
+            document.querySelector('.create-task-btn').setAttribute('disabled', 'disabled');
+            const creditsInput = document.getElementById('max-emails');
+            const currentCredits = document.querySelector('input[name="current-credits"]').value;
+            creditsInput.addEventListener("input", function () {
+                if (parseInt(this.value) <= parseInt(currentCredits)) {
+                    document.querySelector('.create-task-btn').removeAttribute('disabled');
+                } else {
+                    document.querySelector('button[type="submit"]').setAttribute('disabled', 'disabled');
+                }
+            });
+        </script>
     </div>
 </body>
 

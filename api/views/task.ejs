@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Status</title>
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light d-flex flex-column" style="height: 100vh; margin: 0;">
+
+    <div class="container-fluid flex-grow-1 d-flex justify-content-center align-items-center">
+        <div id="task-status" class="w-50 <%= task ? '' : 'd-none' %>">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title" id="task-name"><%= task.source %></h5>
+                    <p class="card-text">Type: <span id="task-type"><%= task.source_type %></span></p>
+                    <p class="card-text">Emails: <span id="task-emails"><%= task.max_leads %></span></p>
+                    <p class="card-text">Status: <span id="task-status"><%= task.status_display %></span></p>
+                    <% if (task.status === 'C') { %>
+                        <form id="task-form" action="/home/tasks/<%= task.id %>/download" method="POST">
+                            <input type="hidden" name="task_id" value="<%= task.id %>">
+                            <button type="submit" class="btn btn-info w-100">Download</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
