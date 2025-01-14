@@ -49,7 +49,7 @@
         <p>You have <%= credits %> credits.</p>
         
         <div class="mb-3">
-            <input type="hidden" value="<%= code %>" id="code-value">
+            <input type="hidden" value="<%= recovery_code %>" id="code-value">
             <button type="button" class="btn btn-outline-secondary" onclick="copyCode()">Copy Code</button>
         </div>
         <form class="retract" action="/home/create-task" method="POST">
@@ -78,7 +78,7 @@
                 <button type="button" class="btn btn-success" onclick="window.location.href='/home/filter'"><i class="bi bi-filter"></i> Filter</button>
             </div>
             <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary me-2" <%=is_admin ? '' : 'disabled' %>><i class="bi bi-plus-circle"></i> Create Task</button>
+                <button type="submit" class="btn btn-primary me-2" <%=admin ? '' : 'disabled' %>><i class="bi bi-plus-circle"></i> Create Task</button>
                 <button type="button" class="btn btn-secondary" onclick="window.location.href='/home/tasks'"><i class="bi bi-list"></i> Tasks
                     List</button>
             </div>

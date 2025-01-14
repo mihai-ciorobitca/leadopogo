@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Authenticator Setup</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    <style>
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        body {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Google Authenticator Setup</h5>
+            </div>
+            <div class="card-body text-center">
+                <p>Scan the QR code with Google Authenticator:</p>
+                <img src="<%= qrCodeBase64 %>" alt="QR Code" id="qrCodeImage">
+                <p>Or copy the code:</p>
+                <button type="button" class="btn btn-secondary mt-2" id="copyCodeButton">Copy Code</button>
+            </div>
+            <div class="card-footer text-right">
+                <button type="button" onclick="window.location='/'" class="btn btn-block btn-primary" id="continueButton">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('copyCodeButton').addEventListener('click', function() {
+            var secretCode = "<%= secretCode %>";
+            var tempInput = document.createElement('input');
+            tempInput.value = secretCode;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Code copied to clipboard');
+        });
+
+        document.getElementById('continueButton').addEventListener('click', function() {
+            fetch('/register/remove-secret-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'removeSecretCode' })
+            })
+        });
+    </script>
+</body>
+
+</html>

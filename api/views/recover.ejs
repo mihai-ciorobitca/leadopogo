@@ -33,12 +33,12 @@
                     maxlength="20" class="form-control" required>
             </div>
             <div class="mb-3">
-                <input type="text" name="secret" id="secret" placeholder="Enter your secret code(6 digits)"
+                <input type="text" name="secretCode" id="secretCode" placeholder="Enter your secret code(6 digits)"
                     autocomplete="off" maxlength="6" class="form-control" required>
             </div>
             <div class="mb-3">
                 <div class="input-group">
-                    <input type="password" name="new_password" id="password" placeholder="Enter your password"
+                    <input type="password" name="newPassword" id="newPassword" placeholder="Enter your password"
                         autocomplete="off" maxlength="64" class="form-control" required>
                     <button class="btn btn-outline-secondary" id="reveal-password-button" type="button"
                         onclick="togglePasswordVisibility()">
@@ -47,16 +47,16 @@
                 </div>
             </div>
             <div class="mb-3 text-center">
-                <button type="submit" name="reset" class="btn btn-primary w-100">Reset</button>
+                <button type="submit" class="btn btn-primary w-100">Reset</button>
             </div>
             <div class="text-center">
                 <p>Remember password? <a href="/login" class="text-success text-decoration-none">Login</a></p>
             </div>
-            <% if (message) { %>
+            <% if (typeof error !== 'undefined') { %>
                 <div class="alert alert-danger" role="alert">
-                    <%= message %>
+                    <%= error %>
                 </div>
-                <% } %>
+            <% } %>
         </form>
     </div>
 

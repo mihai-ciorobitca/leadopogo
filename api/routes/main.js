@@ -1,6 +1,7 @@
 // routes/main.js
 
 const express = require('express');
+const session = require('express-session');
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -8,6 +9,12 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 const router = express.Router();
+
+router.use(session({
+    secret: process.env.SECRET_KEY || 'default_secret', // Provide a default secret
+    resave: false,
+    saveUninitialized: true,
+}));
 
 router.get('/', async (req, res) => {
     if (req.session.username) {

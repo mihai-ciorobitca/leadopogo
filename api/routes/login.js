@@ -1,6 +1,7 @@
 // routes/login.js
 
 const express = require('express');
+const session = require('express-session');
 const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -12,6 +13,12 @@ const adminUsername = process.env.ADMIN_USERNAME;
 const adminPassword = process.env.ADMIN_PASSWORD;
 
 const router = express.Router();
+
+router.use(session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+}));
 
 router.get('/', (_, res) => {
     res.render('login');

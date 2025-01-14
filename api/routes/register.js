@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
         return res.status(500).send('Internal Server Error');
     }
 
-    const qrCodeUrl = speakeasy.otpauthURL({ secret: secret.base32, label: username, issuer: 'Monthly Book' });
+    const qrCodeUrl = speakeasy.otpauthURL({ secret: secret.base32, label: username, issuer: 'Leadopogo' });
     const qrCodeBase64 = await new Promise((resolve, reject) => {
         require('qrcode').toDataURL(qrCodeUrl, (err, data) => {
             if (err) reject(err);
@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
     req.session.secretCode = secret.base32;
     req.session.qrCodeBase64 = qrCodeBase64;
 
-    res.redirect('/qrcode');
+    res.redirect('/register/qrcode');
 });
 
 router.get('/captcha', (req, res) => {
@@ -72,6 +72,19 @@ router.get('/captcha', (req, res) => {
     req.session.captcha = hashedCaptcha;
     res.type('svg');
     res.status(200).send(captcha.data);
+});
+
+router.post('/remove-secret-code', (req, res) => {
+    delete req.session.secretCode;
+    delete req.session.qrCodeBase64;
+    res.redirect('/login');
+});
+
+router.get('/qrcode', (req, res) => {
+    if (!req.session.secretCode) {
+        return res.redirect('/register');
+    }
+    res.render('qrcode', { qrCodeBase64: req.session.qrCodeBase64, secretCode: req.session.secretCode });
 });
 
 module.exports = router;
