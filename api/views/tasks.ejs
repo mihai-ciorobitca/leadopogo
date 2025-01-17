@@ -65,10 +65,7 @@
                                 </label>
                             </td>
                             <td class="text-center">
-                                <form action="/home/tasks/<%= task.id %>" method="POST">
-                                    <input type="hidden" name="task_id" value="<%= task.task_id %>"/>
-                                    <button type="submit" class="btn btn-info">Open</button>
-                                </form>
+                                <button type="submit" class="btn btn-info" onclick='window.location.href="/home/tasks/<%= task.id %>"'>Open</button>
                             </td>
                         </tr>
                         <% }); %>
@@ -88,10 +85,7 @@
                         </p>
                         <p class="card-text">Emails: <%= task.max_emails %>
                         </p>
-                        <form action="/home/tasks/<%= task.id %>" method="POST">
-                            <input type="hidden" name="task_id" value="<%= task.task_id %>"/>
-                            <button type="submit" class="btn btn-info">Open</button>
-                        </form>
+                        <button type="submit" class="btn btn-info" onclick='window.location.href="/home/tasks/<%= task.id %>"'>Open</button>
                     </div>
                 </div>
                 <% }); %>

@@ -29,18 +29,14 @@ router.get('/', async (req, res) => {
     return res.redirect('/login');
 });
 
-async function createExternalTask(taskSource, taskType, taskEmails) {
-    const apiUrl = 'https://src-marketing101.com/api/orders/create/';
-    const payload = {
-        source: taskSource,
-        source_type: taskType,
-        max_leads: taskEmails
-    };
+async function createExternalTask(taskSource, taskType, taskEmails, payload) {
+    const apiUrl = `https://src-marketing101.com/api/orders/create/?source=${taskSource}&source_type=${taskType}&max_leads=${taskEmails}`;
     const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-            'accept': 'accept: application/json',
-            'X-API-Key': process.env.API_KEY
+            'accept': 'application/json',
+            'X-API-Key': process.env.API_KEY,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
     });
@@ -145,7 +141,10 @@ router.get('/tasks', async (req, res) => {
     return res.redirect('/login');
 });
 
-router.post("/tasks/:id", async (req, res) => {
+router.get("/tasks/:id", async (req, res) => {
+    if (!req.session.username) {
+        return res.redirect('/login');
+    }
     const id = req.params.id;
     const { data: task, error: fetchError } = await supabase_client
         .from('tasks')
@@ -160,7 +159,6 @@ router.post("/tasks/:id", async (req, res) => {
     try {
 
         const externalOrder = await checkExternalOrder(task.task_id);
-        console.log(externalOrder);
         return res.render('task', { task: externalOrder });
     } catch (error) {
         return res.status(500).json({ error: error.message });
