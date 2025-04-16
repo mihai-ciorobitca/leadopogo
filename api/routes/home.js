@@ -179,11 +179,11 @@ router.post('/tasks/:id/download', async (req, res) => {
 });
 
 router.get('/checker', async (req, res) => {
-    // ...existing code...
+    res.render("checker");
 });
 
 router.get('/filter', async (req, res) => {
-    // ...existing code...
+    res.render("filter");
 });
 
 module.exports = router;
